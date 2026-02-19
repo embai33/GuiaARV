@@ -1,0 +1,756 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Consulta de Antirretrovirales — España</title>
+<style>
+:root {
+  --rojo: #8B1A1A;
+  --rojo-claro: #A63D40;
+  --rojo-hover: #6B1414;
+  --granate: #5C0A0A;
+  --gris-oscuro: #2D2D2D;
+  --gris-medio: #5A5A5A;
+  --gris-claro: #E8E4E0;
+  --gris-fondo: #F5F3F0;
+  --negro: #1A1A1A;
+  --blanco: #FFFFFF;
+  --borde: #D0CBC5;
+  --sombra: rgba(0,0,0,0.08);
+}
+
+* { margin:0; padding:0; box-sizing:border-box; }
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  background: var(--gris-fondo);
+  color: var(--negro);
+  line-height: 1.5;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* HEADER */
+header {
+  background: linear-gradient(135deg, var(--granate), var(--rojo));
+  color: var(--blanco);
+  padding: 1.5rem 2rem;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+}
+header h1 {
+  font-size: 1.6rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+header p {
+  font-size: 0.85rem;
+  opacity: 0.85;
+  margin-top: 0.3rem;
+}
+
+/* MAIN */
+main {
+  flex: 1;
+  max-width: 1400px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 1.5rem;
+}
+
+/* FILTERS PANEL */
+.filters-panel {
+  background: var(--blanco);
+  border: 1px solid var(--borde);
+  border-radius: 8px;
+  padding: 1.25rem;
+  margin-bottom: 1.25rem;
+  box-shadow: 0 1px 4px var(--sombra);
+}
+.filters-panel h2 {
+  font-size: 1rem;
+  color: var(--granate);
+  margin-bottom: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.filters-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 0.75rem;
+}
+.filter-group label {
+  display: block;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--gris-medio);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin-bottom: 0.3rem;
+}
+.filter-group select,
+.filter-group input {
+  width: 100%;
+  padding: 0.5rem 0.6rem;
+  border: 1px solid var(--borde);
+  border-radius: 5px;
+  font-size: 0.85rem;
+  color: var(--negro);
+  background: var(--blanco);
+  transition: border-color 0.2s;
+}
+.filter-group select:focus,
+.filter-group input:focus {
+  outline: none;
+  border-color: var(--rojo);
+  box-shadow: 0 0 0 2px rgba(139,26,26,0.12);
+}
+.filter-actions {
+  display: flex;
+  gap: 0.5rem;
+  align-items: end;
+  margin-top: 1rem;
+}
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: 5px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.1s;
+}
+.btn:active { transform: scale(0.97); }
+.btn-primary {
+  background: var(--rojo);
+  color: var(--blanco);
+}
+.btn-primary:hover { background: var(--rojo-hover); }
+.btn-secondary {
+  background: var(--gris-claro);
+  color: var(--gris-oscuro);
+  border: 1px solid var(--borde);
+}
+.btn-secondary:hover { background: #D9D4CE; }
+.btn-download {
+  background: var(--gris-oscuro);
+  color: var(--blanco);
+}
+.btn-download:hover { background: var(--negro); }
+
+/* RESULTS BAR */
+.results-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.75rem;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+.results-count {
+  font-size: 0.85rem;
+  color: var(--gris-medio);
+}
+.results-count strong {
+  color: var(--granate);
+}
+
+/* TABLE */
+.table-wrapper {
+  background: var(--blanco);
+  border: 1px solid var(--borde);
+  border-radius: 8px;
+  overflow-x: auto;
+  box-shadow: 0 1px 4px var(--sombra);
+}
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.82rem;
+}
+thead th {
+  background: var(--granate);
+  color: var(--blanco);
+  padding: 0.7rem 0.6rem;
+  text-align: left;
+  font-weight: 600;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  position: sticky;
+  top: 0;
+  white-space: nowrap;
+  cursor: pointer;
+  user-select: none;
+}
+thead th:hover { background: var(--rojo-hover); }
+thead th .sort-arrow { margin-left: 0.3rem; opacity: 0.5; font-size: 0.7rem; }
+thead th.sorted .sort-arrow { opacity: 1; }
+tbody tr {
+  border-bottom: 1px solid #EDE9E5;
+  transition: background 0.15s;
+  cursor: pointer;
+}
+tbody tr:hover { background: #FAF7F4; }
+tbody tr:nth-child(even) { background: #FDFCFB; }
+tbody tr:nth-child(even):hover { background: #FAF7F4; }
+td {
+  padding: 0.55rem 0.6rem;
+  vertical-align: top;
+}
+td.nombre-col {
+  font-weight: 600;
+  color: var(--rojo);
+  max-width: 280px;
+}
+.badge {
+  display: inline-block;
+  padding: 0.15rem 0.45rem;
+  border-radius: 3px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+.badge-si {
+  background: #F0D9D9;
+  color: var(--rojo);
+}
+.badge-no {
+  background: #E8E4E0;
+  color: var(--gris-medio);
+}
+.badge-generico {
+  background: #D6E8D6;
+  color: #2D5A2D;
+}
+.badge-marca {
+  background: #E0D6E8;
+  color: #4A2D6B;
+}
+
+/* MODAL / DETAIL CARD */
+.modal-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.5);
+  z-index: 1000;
+  justify-content: center;
+  align-items: flex-start;
+  padding: 2rem;
+  overflow-y: auto;
+}
+.modal-overlay.active { display: flex; }
+.modal-card {
+  background: var(--blanco);
+  border-radius: 10px;
+  max-width: 700px;
+  width: 100%;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+  margin-top: 2vh;
+  animation: modalIn 0.2s ease;
+}
+@keyframes modalIn {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.modal-header {
+  background: linear-gradient(135deg, var(--granate), var(--rojo));
+  color: var(--blanco);
+  padding: 1.25rem 1.5rem;
+  border-radius: 10px 10px 0 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1rem;
+}
+.modal-header h3 {
+  font-size: 1.1rem;
+  font-weight: 700;
+  line-height: 1.3;
+}
+.modal-close {
+  background: rgba(255,255,255,0.2);
+  border: none;
+  color: var(--blanco);
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 1.1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: background 0.2s;
+}
+.modal-close:hover { background: rgba(255,255,255,0.35); }
+.modal-body {
+  padding: 1.5rem;
+}
+.detail-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+.detail-item {
+  padding: 0.6rem 0;
+  border-bottom: 1px solid #EDE9E5;
+}
+.detail-item.full-width {
+  grid-column: 1 / -1;
+}
+.detail-label {
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: var(--gris-medio);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin-bottom: 0.2rem;
+}
+.detail-value {
+  font-size: 0.9rem;
+  color: var(--negro);
+}
+.modal-links {
+  margin-top: 1.25rem;
+  padding-top: 1rem;
+  border-top: 1px solid #EDE9E5;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+.modal-links a {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.5rem 0.9rem;
+  border-radius: 5px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-decoration: none;
+  transition: background 0.2s;
+}
+.link-cima {
+  background: var(--rojo);
+  color: var(--blanco);
+}
+.link-cima:hover { background: var(--rojo-hover); }
+.link-bifimed {
+  background: var(--gris-oscuro);
+  color: var(--blanco);
+}
+.link-bifimed:hover { background: var(--negro); }
+.modal-download-row {
+  margin-top: 1rem;
+  display: flex;
+  gap: 0.5rem;
+}
+
+/* FOOTER */
+footer {
+  background: var(--negro);
+  color: #AAA;
+  text-align: center;
+  padding: 1.2rem;
+  font-size: 0.8rem;
+  margin-top: auto;
+}
+footer a {
+  color: var(--blanco);
+  text-decoration: none;
+  font-weight: 700;
+  transition: color 0.2s;
+}
+footer a:hover { color: var(--gris-claro); }
+
+/* NO RESULTS */
+.no-results {
+  text-align: center;
+  padding: 3rem 1rem;
+  color: var(--gris-medio);
+}
+.no-results p { font-size: 1rem; margin-top: 0.5rem; }
+
+/* RESPONSIVE */
+@media (max-width: 768px) {
+  header { padding: 1rem; }
+  header h1 { font-size: 1.2rem; }
+  main { padding: 1rem; }
+  .filters-grid { grid-template-columns: 1fr; }
+  .detail-grid { grid-template-columns: 1fr; }
+  .modal-overlay { padding: 1rem; }
+}
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Consulta de Medicamentos Antirretrovirales</h1>
+  <p>Fuente: CIMA — Agencia Espa&ntilde;ola de Medicamentos y Productos Sanitarios (AEMPS)</p>
+</header>
+
+<main>
+
+  <!-- FILTERS -->
+  <section class="filters-panel">
+    <h2>&#9881; Filtros de b&uacute;squeda</h2>
+    <div class="filters-grid">
+      <div class="filter-group">
+        <label>Buscar por nombre</label>
+        <input type="text" id="f-nombre" placeholder="Nombre del medicamento...">
+      </div>
+      <div class="filter-group">
+        <label>Grupo terap&eacute;utico (ATC-1)</label>
+        <select id="f-atc1"><option value="">Todos</option></select>
+      </div>
+      <div class="filter-group">
+        <label>Principio activo (ATC-2)</label>
+        <select id="f-atc2"><option value="">Todos</option></select>
+      </div>
+      <div class="filter-group">
+        <label>Laboratorio titular</label>
+        <select id="f-lab"><option value="">Todos</option></select>
+      </div>
+      <div class="filter-group">
+        <label>Forma farmac&eacute;utica</label>
+        <select id="f-forma"><option value="">Todos</option></select>
+      </div>
+      <div class="filter-group">
+        <label>V&iacute;a de administraci&oacute;n</label>
+        <select id="f-via"><option value="">Todas</option></select>
+      </div>
+      <div class="filter-group">
+        <label>Gen&eacute;rico</label>
+        <select id="f-generico">
+          <option value="">Todos</option>
+          <option value="S&iacute;">S&iacute;</option>
+          <option value="No">No</option>
+        </select>
+      </div>
+      <div class="filter-group">
+        <label>Afecta conducci&oacute;n</label>
+        <select id="f-conduccion">
+          <option value="">Todos</option>
+          <option value="S&iacute;">S&iacute;</option>
+          <option value="No">No</option>
+        </select>
+      </div>
+      <div class="filter-group">
+        <label>Tri&aacute;ngulo negro</label>
+        <select id="f-triangulo">
+          <option value="">Todos</option>
+          <option value="S&iacute;">S&iacute;</option>
+          <option value="No">No</option>
+        </select>
+      </div>
+    </div>
+    <div class="filter-actions">
+      <button class="btn btn-primary" onclick="applyFilters()">Filtrar</button>
+      <button class="btn btn-secondary" onclick="clearFilters()">Limpiar filtros</button>
+      <button class="btn btn-download" onclick="downloadCSV()">&#8681; Descargar listado (CSV)</button>
+    </div>
+  </section>
+
+  <!-- RESULTS -->
+  <div class="results-bar">
+    <span class="results-count" id="results-count"></span>
+  </div>
+
+  <div class="table-wrapper">
+    <table>
+      <thead>
+        <tr>
+          <th data-col="Código Nacional" onclick="sortBy(this)">C&oacute;d. Nacional <span class="sort-arrow">&#9650;</span></th>
+          <th data-col="Nombre" onclick="sortBy(this)">Nombre <span class="sort-arrow">&#9650;</span></th>
+          <th data-col="ATC-2" onclick="sortBy(this)">Principio activo <span class="sort-arrow">&#9650;</span></th>
+          <th data-col="Forma farmacéutica" onclick="sortBy(this)">Forma <span class="sort-arrow">&#9650;</span></th>
+          <th data-col="Dosis" onclick="sortBy(this)">Dosis <span class="sort-arrow">&#9650;</span></th>
+          <th data-col="Genérico" onclick="sortBy(this)">Gen&eacute;rico <span class="sort-arrow">&#9650;</span></th>
+          <th data-col="Afecta conducción" onclick="sortBy(this)">Conducci&oacute;n <span class="sort-arrow">&#9650;</span></th>
+          <th data-col="Triángulo negro" onclick="sortBy(this)">&#9650; Negro <span class="sort-arrow">&#9650;</span></th>
+        </tr>
+      </thead>
+      <tbody id="table-body"></tbody>
+    </table>
+    <div class="no-results" id="no-results" style="display:none">
+      <p><strong>Sin resultados</strong></p>
+      <p>No se encontraron medicamentos con los filtros aplicados.</p>
+    </div>
+  </div>
+</main>
+
+<!-- DETAIL MODAL -->
+<div class="modal-overlay" id="modal-overlay" onclick="closeModal(event)">
+  <div class="modal-card" onclick="event.stopPropagation()">
+    <div class="modal-header">
+      <h3 id="modal-title"></h3>
+      <button class="modal-close" onclick="closeModal()">&times;</button>
+    </div>
+    <div class="modal-body" id="modal-body"></div>
+  </div>
+</div>
+
+<footer>
+  Aplicaci&oacute;n desarrollada por <a href="https://www.linkedin.com/in/emilio-monte-boquet" target="_blank" rel="noopener">EMB</a>
+</footer>
+
+<script>
+const DATA = [{"Código Nacional": 709978, "Nombre": "ATAZANAVIR TEVA 200 MG CAPSULAS DURAS EFG", "Principios activos": "ATAZANAVIR SULFATO 227,829 mg", "Laboratorio titular": "Teva Pharma S.L.U.", "Comercializador": "Teva Pharma S.L.U.", "Genérico": "Sí", "Afecta conducción": "No", "Triángulo negro": "No", "Forma farmacéutica": "CÁPSULA DURA", "Vías de administración": "VÍA ORAL", "Dosis": "200 mg", "ATC-1": "J05AE - Inhibidores de proteasa (IP)", "ATC-2": "J05AE08 - Atazanavir"}, {"Código Nacional": 725459, "Nombre": "ATAZANAVIR STADA 200 MG CAPSULAS DURAS EFG", "Principios activos": "ATAZANAVIR SULFATO 228 mg", "Laboratorio titular": "Laboratorio Stada S.L.", "Comercializador": "Laboratorio Stada S.L.", "Genérico": "Sí", "Afecta conducción": "No", "Triángulo negro": "No", "Forma farmacéutica": "CÁPSULA DURA", "Vías de administración": "VÍA ORAL", "Dosis": "200 mg", "ATC-1": "J05AE - Inhibidores de proteasa (IP)", "ATC-2": "J05AE08 - Atazanavir"}, {"Código Nacional": 709982, "Nombre": "ATAZANAVIR TEVA 300 MG CAPSULAS DURAS EFG", "Principios activos": "ATAZANAVIR SULFATO 341,744 mg", "Laboratorio titular": "Teva Pharma S.L.U.", "Comercializador": "Teva Pharma S.L.U.", "Genérico": "Sí", "Afecta conducción": "No", "Triángulo negro": "No", "Forma farmacéutica": "CÁPSULA DURA", "Vías de administración": "VÍA ORAL", "Dosis": "300 mg", "ATC-1": "J05AE - Inhibidores de proteasa (IP)", "ATC-2": "J05AE08 - Atazanavir"}, {"Código Nacional": 725461, "Nombre": "ATAZANAVIR STADA 300 MG CAPSULAS DURAS EFG", "Principios activos": "ATAZANAVIR SULFATO 342 mg", "Laboratorio titular": "Laboratorio Stada S.L.", "Comercializador": "Laboratorio Stada S.L.", "Genérico": "Sí", "Afecta conducción": "No", "Triángulo negro": "No", "Forma farmacéutica": "CÁPSULA DURA", "Vías de administración": "VÍA ORAL", "Dosis": "300 mg", "ATC-1": "J05AE - Inhibidores de proteasa (IP)", "ATC-2": "J05AE08 - Atazanavir"}, {"Código Nacional": 728805, "Nombre": "DARUNAVIR TARBIS 400 MG COMPRIMIDOS RECUBIERTOS CON PELICULA EFG", "Principios activos": "DARUNAVIR 400 mg", "Laboratorio titular": "Tarbis Farma S.L.", "Comercializador": "Tarbis Farma S.L.", "Genérico": "Sí", "Afecta conducción": "No", "Triángulo negro": "No", "Forma farmacéutica": "COMPRIMIDO RECUBIERTO CON PELÍCULA", "Vías de administración": "VÍA ORAL", "Dosis": "400 mg", "ATC-1": "J05AE - Inhibidores de proteasa (IP)", "ATC-2": "J05AE10 - Darunavir"}, {"Código Nacional": 728806, "Nombre": "DARUNAVIR TARBIS 600 MG COMPRIMIDOS RECUBIERTOS CON PELICULA EFG", "Principios activos": "DARUNAVIR 600 mg", "Laboratorio titular": "Tarbis Farma S.L.", "Comercializador": "Tarbis Farma S.L.", "Genérico": "Sí", "Afecta conducción": "No", "Triángulo negro": "No", "Forma farmacéutica": "COMPRIMIDO RECUBIERTO CON PELÍCULA", "Vías de administración": "VÍA ORAL", "Dosis": "600 mg", "ATC-1": "J05AE - Inhibidores de proteasa (IP)", "ATC-2": "J05AE10 - Darunavir"}, {"Código Nacional": 732573, "Nombre": "DARUNAVIR VIVANTA 600 MG COMPRIMIDOS RECUBIERTOS CON PELICULA EFG", "Principios activos": "DARUNAVIR 600 mg", "Laboratorio titular": "Vivanta Generics S.R.O.", "Comercializador": "Vivanta Generics S.R.O. Sucursal En Espana", "Genérico": "Sí", "Afecta conducción": "No", "Triángulo negro": "No", "Forma farmacéutica": "COMPRIMIDO RECUBIERTO CON PELÍCULA", "Vías de administración": "VÍA ORAL", "Dosis": "600 mg", "ATC-1": "J05AE - Inhibidores de proteasa (IP)", "ATC-2": "J05AE10 - Darunavir"}, {"Código Nacional": 728807, "Nombre": "DARUNAVIR TARBIS 800 MG COMPRIMIDOS RECUBIERTOS CON PELICULA EFG", "Principios activos": "DARUNAVIR 800 mg", "Laboratorio titular": "Tarbis Farma S.L.", "Comercializador": "Tarbis Farma S.L.", "Genérico": "Sí", "Afecta conducción": "No", "Triángulo negro": "No", "Forma farmacéutica": "COMPRIMIDO RECUBIERTO CON PELÍCULA", "Vías de administración": "VÍA ORAL", "Dosis": "800 mg", "ATC-1": "J05AE - Inhibidores de proteasa (IP)", "ATC-2": "J05AE10 - Darunavir"}, {"Código Nacional": 732574, "Nombre": "DARUNAVIR VIVANTA 800 MG COMPRIMIDOS RECUBIERTOS CON PELICULA EFG", "Principios activos": "DARUNAVIR 800 mg", "Laboratorio titular": "Vivanta Generics S.R.O.", "Comercializador": "Vivanta Generics S.R.O. Sucursal En Espana", "Genérico": "Sí", "Afecta conducción": "No", "Triángulo negro": "No", "Forma farmacéutica": "COMPRIMIDO RECUBIERTO CON PELÍCULA", "Vías de administración": "VÍA ORAL", "Dosis": "800 mg", "ATC-1": "J05AE - Inhibidores de proteasa (IP)", "ATC-2": "J05AE10 - Darunavir"}, {"Código Nacional": 696445, "Nombre": "PREZISTA 100 MG/ML SUSPENSION ORAL", "Principios activos": "DARUNAVIR ETANOLATO 108.4 mg", "Laboratorio titular": "Janssen-Cilag International N.V", "Comercializador": "Janssen Cilag S.A.", "Genérico": "No", "Afecta conducción": "No", "Triángulo negro": "No", "Forma farmacéutica": "SUSPENSIÓN ORAL", "Vías de administración": "VÍA ORAL", "Dosis": "100 MG/ML", "ATC-1": "J05AE - Inhibidores de proteasa (IP)", "ATC-2": "J05AE10 - Darunavir"}, {"Código Nacional": 662074, "Nombre": "PREZISTA 400 mg COMPRIMIDOS RECUBIERTOS CON PELICULA", "Principios activos": "DARUNAVIR ETANOLATO 400 mg", "Laboratorio titular": "Janssen-Cilag International N.V", "Comercializador": "Janssen Cilag S.A.", "Genérico": "No", "Afecta conducción": "No", "Triángulo negro": "No", "Forma farmacéutica": "COMPRIMIDO RECUBIERTO CON PELÍCULA", "Vías de administración": "VÍA ORAL", "Dosis": "400 mg", "ATC-1": "J05AE - Inhibidores de proteasa (IP)", "ATC-2": "J05AE10 - Darunavir"}, {"Código Nacional": 662075, "Nombre": "PREZISTA 600 mg COMPRIMIDOS RECUBIERTOS CON PELICULA", "Principios activos": "DARUNAVIR ETANOLATO 600 mg", "Laboratorio titular": "Janssen-Cilag International N.V", "Comercializador": "Janssen Cilag S.A.", "Genérico": "No", "Afecta conducción": "No", "Triángulo negro": "No", "Forma farmacéutica": "COMPRIMIDO RECUBIERTO CON PELÍCULA", "Vías de administración": "VÍA ORAL", "Dosis": "600 mg", "ATC-1": "J05AE - Inhibidores de proteasa (IP)", "ATC-2": "J05AE10 - Darunavir"}, {"Código Nacional": 696942, "Nombre": "PREZISTA 800 MG COMPRIMIDOS RECUBIERTOS CON PELICULA", "Principios activos": "DARUNAVIR ETANOLATO 867,28 mg", "Laboratorio titular": "Janssen-Cilag International N.V", "Comercializador": "Janssen Cilag S.A.", "Genérico": "No", "Afecta conducción": "No", "Triángulo negro": "No", "Forma farmacéutica": "COMPRIMIDO RECUBIERTO CON PELÍCULA", "Vías de administración": "VÍA ORAL", "Dosis": "800 mg", "ATC-1": "J05AE - Inhibidores de proteasa (IP)", "ATC-2": "J05AE10 - Darunavir"}, {"Código Nacional": 727799, "Nombre": "DARUNAVIR AUROVITAS 600 MG COMPRIMIDOS RECUBIERTOS CON PELICULA EFG", "Principios activos": "DARUNAVIR PROPILENGLICOLATO 683,34 mg", "Laboratorio titular": "Aurovitas Spain, S.A.U.", "Comercializador": "Aurovitas Spain, S.A.U.", "Genérico": "Sí", "Afecta conducción": "No", "Triángulo negro": "No", "Forma farmacéutica": "COMPRIMIDO RECUBIERTO CON PELÍCULA", "Vías de administración": "VÍA ORAL", "Dosis": "600 mg", "ATC-1": "J05AE - Inhibidores de proteasa (IP)", "ATC-2": "J05AE10 - Darunavir"}, {"Código Nacional": 727856, "Nombre": "DARUNAVIR AUROVITAS 800 MG COMPRIMIDOS RECUBIERTOS CON PELICULA EFG", "Principios activos": "DARUNAVIR PROPILENGLICOLATO 911,12 mg", "Laboratorio titular": "Aurovitas Spain, S.A.U.", "Comercializador": "Aurovitas Spain, S.A.U.", "Genérico": "Sí", "Afecta conducción": "No", "Triángulo negro": "No", "Forma farmacéutica": "COMPRIMIDO RECUBIERTO CON PELÍCULA", "Vías de administración": "VÍA ORAL", "Dosis": "800 mg", "ATC-1": "J05AE - Inhibidores de proteasa (IP)", "ATC-2": "J05AE10 - Darunavir"}, {"Código Nacional": 665749, "Nombre": "NORVIR 100 mg COMPRIMIDOS RECUBIERTOS CON PELICULA", "Principios activos": "RITONAVIR 100 mg", "Laboratorio titular": "Abbvie Deutschland Gmbh & Co. Kg", "Comercializador": "Abbvie Spain, S.L.U.", "Genérico": "No", "Afecta conducción": "No", "Triángulo negro": "No", "Forma farmacéutica": "COMPRIMIDO RECUBIERTO CON PELÍCULA", "Vías de administración": "VÍA ORAL", "Dosis": "100 mg", "ATC-1": "J05AE - Inhibidores de proteasa (IP)", "ATC-2": "J05AE03 - Ritonavir"}, {"Código Nacional": 708200, "Nombre": "NORVIR 100MG POLVO PARA SUSPENSION ORAL", "Principios activos": "RITONAVIR 100 mg", "Laboratorio titular": "Abbvie Deutschland Gmbh & Co. Kg", "Comercializador": "Abbvie Spain, S.L.U.", "Genérico": "No", "Afecta conducción": "No", "Triángulo negro": "No", "Forma farmacéutica": "POLVO PARA SOLUCIÓN ORAL", "Vías de administración": "VÍA ORAL", "Dosis": "100 MG", "ATC-1": "J05AE - Inhibidores de proteasa (IP)", "ATC-2": "J05AE03 - Ritonavir"}, {"Código Nacional": 728757, "Nombre": "RITONAVIR ACCORD 100 MG COMPRIMIDOS RECUBIERTOS CON PELICULA EFG", "Principios activos": "RITONAVIR 100 mg", "Laboratorio titular": "Accord Healthcare S.L.U.", "Comercializador": "Accord Healthcare S.L.U.", "Genérico": "Sí", "Afecta conducción": "No", "Triángulo negro": "No", "Forma farmacéutica": "COMPRIMIDO RECUBIERTO CON PELÍCULA", "Vías de administración": "VÍA ORAL", "Dosis": "100 mg", "ATC-1": "J05AE - Inhibidores de proteasa (IP)", "ATC-2": "J05AE03 - Ritonavir"}, {"Código Nacional": 727637, "Nombre": "ABACAVIR TARBIS 300 MG COMPRIMIDOS RECUBIERTOS CON PELICULA EFG", "Principios activos": "ABACAVIR 300 mg", "Laboratorio titular": "Tarbis Farma S.L.", "Comercializador": "Tarbis Farma S.L.", "Genérico": "Sí", "Afecta conducción": "No", "Triángulo negro": "No", "Forma farmacéutica": "COMPRIMIDO RECUBIERTO CON PELÍCULA", "Vías de administración": "VÍA ORAL", "Dosis": "300 MG", "ATC-1": "J05AF - Inhibidores de la transcriptasa inversa nucleósidos y nucleótidos (ITIN)", "ATC-2": "J05AF06 - Abacavir"}, {"Código Nacional": 811893, "Nombre": "ZIAGEN 20 MG/ML SOLUCION ORAL", "Principios activos": "ABACAVIR SULFATO 20 mg", "Laboratorio titular": "Viiv Healthcare B.V.", "Comercializador": "Laboratorios Viiv Healthcare S.L.", "Genérico": "No", "Afecta conducción": "No", "Triángulo negro": "No", "Forma farmacéutica": "SOLUCIÓN ORAL", "Vías de administración": "VÍA ORAL", "Dosis": "Desconocida", "ATC-1": "J05AF - Inhibidores de la transcriptasa inversa nucleósidos y nucleótidos (ITIN)", "ATC-2": "J05AF06 - Abacavir"}, {"Código Nacional": 811869, "Nombre": "ZIAGEN 300 MG COMPRIMIDOS RECUBIERTOS CON PELICULA", "Principios activos": "ABACAVIR SULFATO 300 mg", "Laboratorio titular": "Viiv Healthcare B.V.", "Comercializador": "Laboratorios Viiv Healthcare S.L.", "Genérico": "No", "Afecta conducción": "No", "Triángulo negro": "No", "Forma farmacéutica": "COMPRIMIDO RECUBIERTO", "Vías de administración": "VÍA ORAL", "Dosis": "300 mg", "ATC-1": "J05AF - Inhibidores de la transcriptasa inversa nucleósidos y nucleótidos (ITIN)", "ATC-2": "J05AF06 - Abacavir"}, {"Código Nacional": 781179, "Nombre": "EMTRIVA 10 MG/ML SOLUCION ORAL", "Principios activos": "EMTRICITABINA 10 mg", "Laboratorio titular": "Gilead Sciences Ireland Unlimited Company", "Comercializador": "Gilead Sciences S.L.", "Genérico": "No", "Afecta conducción": "No", "Triángulo negro": "No", "Forma farmacéutica": "SOLUCIÓN ORAL", "Vías de administración": "VÍA ORAL", "Dosis": "10 mg", "ATC-1": "J05AF - Inhibidores de la transcriptasa inversa nucleósidos y nucleótidos (ITIN)", "ATC-2": "J05AF09 - Emtricitabina"}, {"Código Nacional": 781757, "Nombre": "EMTRIVA 200 MG CAPSULAS", "Principios activos": "EMTRICITABINA 200 mg", "Laboratorio titular": "Gilead Sciences Ireland Unlimited Company", "Comercializador": "Gilead Sciences S.L.", "Genérico": "No", "Afecta conducción": "No", "Triángulo negro": "No", "Forma farmacéutica": "CÁPSULA DURA", "Vías de administración": "VÍA ORAL", "Dosis": "200 mg", "ATC-1": "J05AF - Inhibidores de la transcriptasa inversa nucleósidos y nucleótidos (ITIN)", "ATC-2": "J05AF09 - Emtricitabina"}, {"Código Nacional": 675892, "Nombre": "EPIVIR 10 MG/ML SOLUCION ORAL", "Principios activos": "LAMIVUDINA 10 mg", "Laboratorio titular": "Viiv Healthcare B.V.", "Comercializador": "Laboratorios Viiv Healthcare S.L.", "Genérico": "No", "Afecta conducción": "No", "Triángulo negro": "No", "Forma farmacéutica": "SOLUCIÓN ORAL", "Vías de administración": "VÍA ORAL", "Dosis": "10 mg", "ATC-1": "J05AF - Inhibidores de la transcriptasa inversa nucleósidos y nucleótidos (ITIN)", "ATC-2": "J05AF05 - Lamivudina"}, {"Código Nacional": 702387, "Nombre": "LAMIVUDINA ACCORD 100 MG COMPRIMIDOS RECUBIERTOS CON PELICULA EFG", "Principios activos": "LAMIVUDINA 100 mg", "Laboratorio titular": "Accord Healthcare S.L.U.", "Comercializador": "Accord Healthcare S.L.U.", "Genérico": "Sí", "Afecta conducción": "No", "Triángulo negro": "No", "Forma farmacéutica": "COMPRIMIDO RECUBIERTO CON PELÍCULA", "Vías de administración": "VÍA ORAL", "Dosis": "100 mg", "ATC-1": "J05AF - Inhibidores de la transcriptasa inversa nucleósidos y nucleótidos (ITIN)", "ATC-2": "J05AF05 - Lamivudina"}, {"Código Nacional": 689792, "Nombre": "LAMIVUDINA NORMON 100 mg COMPRIMIDOS RECUBIERTOS CON PELICULA EFG", "Principios activos": "LAMIVUDINA 100 mg", "Laboratorio titular": "Laboratorios Normon S.A.", "Comercializador": "Laboratorios Normon S.A.", "Genérico": "Sí", "Afecta conducción": "No", "Triángulo negro": "No", "Forma farmacéutica": "COMPRIMIDO RECUBIERTO CON PELÍCULA", "Vías de administración": "VÍA ORAL", "Dosis": "100 mg", "ATC-1": "J05AF - Inhibidores de la transcriptasa inversa nucleósidos y nucleótidos (ITIN)", "ATC-2": "J05AF05 - Lamivudina"}, {"Código Nacional": 817445, "Nombre": "ZEFFIX 100 mg COMPRIMIDOS RECUBIERTOS CON PELICULA", "Principios activos": "LAMIVUDINA 100 mg", "Laboratorio titular": "Glaxosmithkline Trading Services Limited", "Comercializador": "Glaxosmithkline S.A.", "Genérico": "No", "Afecta conducción": "No", "Triángulo negro": "No", "Forma farmacéutica": "COMPRIMIDO RECUBIERTO CON PELÍCULA", "Vías de administración": "VÍA ORAL", "Dosis": "Desconocida", "ATC-1": "J05AF - Inhibidores de la transcriptasa inversa nucleósidos y nucleótidos (ITIN)", "ATC-2": "J05AF05 - Lamivudina"}, {"Código Nacional": 675900, "Nombre": "EPIVIR 150 MG COMPRIMIDOS RECUBIERTOS CON PELICULA", "Principios activos": "LAMIVUDINA 150 mg", "Laboratorio titular": "Viiv Healthcare B.V.", "Comercializador": "Laboratorios Viiv Healthcare S.L.", "Genérico": "No", "Afecta conducción": "No", "Triángulo negro": "No", "Forma farmacéutica": "COMPRIMIDO RECUBIERTO CON PELÍCULA", "Vías de administración": "VÍA ORAL", "Dosis": "150 mg", "ATC-1": "J05AF - Inhibidores de la transcriptasa inversa nucleósidos y nucleótidos (ITIN)", "ATC-2": "J05AF05 - Lamivudina"}, {"Código Nacional": 662997, "Nombre": "LAMIVUDINA NORMON 150 mg COMPRIMIDOS RECUBIERTOS CON PELICULA EFG", "Principios activos": "LAMIVUDINA 150 mg", "Laboratorio titular": "Laboratorios Normon S.A.", "Comercializador": "Laboratorios Normon S.A.", "Genérico": "Sí", "Afecta conducción": "No", "Triángulo negro": "No", "Forma farmacéutica": "COMPRIMIDO RECUBIERTO CON PELÍCULA", "Vías de administración": "VÍA ORAL", "Dosis": "150 MG", "ATC-1": "J05AF - Inhibidores de la transcriptasa inversa nucleósidos y nucleótidos (ITIN)", "ATC-2": "J05AF05 - Lamivudina"}, {"Código Nacional": 664558, "Nombre": "LAMIVUDINA TEVA PHARMA B.V. 150 MG COMPRIMIDOS RECUBIERTOS CON PELICULA EFG", "Principios activos": "LAMIVUDINA 150 mg", "Laboratorio titular": "Teva B.V.", "Comercializador": "Teva Pharma S.L.U.", "Genérico": "Sí", "Afecta conducción": "No", "Triángulo negro": "No", "Forma farmacéutica": "COMPRIMIDO RECUBIERTO CON PELÍCULA", "Vías de administración": "VÍA ORAL", "Dosis": "150 MG", "ATC-1": "J05AF - Inhibidores de la transcriptasa inversa nucleósidos y nucleótidos (ITIN)", "ATC-2": "J05AF05 - Lamivudina"}, {"Código Nacional": 707562, "Nombre": "EPIVIR 300 MG COMPRIMIDOS RECUBIERTOS CON PELICULA", "Principios activos": "LAMIVUDINA 300 mg", "Laboratorio titular": "Viiv Healthcare B.V.", "Comercializador": "Laboratorios Viiv Healthcare S.L.", "Genérico": "No", "Afecta conducción": "No", "Triángulo negro": "No", "Forma farmacéutica": "COMPRIMIDO RECUBIERTO CON PELÍCULA", "Vías de administración": "VÍA ORAL", "Dosis": "300 mg", "ATC-1": "J05AF - Inhibidores de la transcriptasa inversa nucleósidos y nucleótidos (ITIN)", "ATC-2": "J05AF05 - Lamivudina"}, {"Código Nacional": 702393, "Nombre": "LAMIVUDINA ACCORD 300 MG COMPRIMIDOS RECUBIERTOS CON PELICULA EFG", "Principios activos": "LAMIVUDINA 300 mg", "Laboratorio titular": "Accord Healthcare S.L.U.", "Comercializador": "Accord Healthcare S.L.U.", "Genérico": "Sí", "Afecta conducción": "No", "Triángulo negro": "No", "Forma farmacéutica": "COMPRIMIDO RECUBIERTO CON PELÍCULA", "Vías de administración": "VÍA ORAL", "Dosis": "300 mg", "ATC-1": "J05AF - Inhibidores de la transcriptasa inversa nucleósidos y nucleótidos (ITIN)", "ATC-2": "J05AF05 - Lamivudina"}, {"Código Nacional": 662998, "Nombre": "LAMIVUDINA NORMON 300 mg COMPRIMIDOS RECUBIERTOS CON PELICULA EFG", "Principios activos": "LAMIVUDINA 300 mg", "Laboratorio titular": "Laboratorios Normon S.A.", "Comercializador": "Laboratorios Normon S.A.", "Genérico": "Sí", "Afecta conducción": "No", "Triángulo negro": "No", "Forma farmacéutica": "COMPRIMIDO RECUBIERTO CON PELÍCULA", "Vías de administración": "VÍA ORAL", "Dosis": "300 MG", "ATC-1": "J05AF - Inhibidores de la transcriptasa inversa nucleósidos y nucleótidos (ITIN)", "ATC-2": "J05AF05 - Lamivudina"}, {"Código Nacional": 698336, "Nombre": "LAMIVUDINA AUROVITAS 300 MG COMPRIMIDOS RECUBIERTOS CON PELICULA EFG", "Principios activos": "LAMIVUDINA 300,000 mg", "Laboratorio titular": "Aurovitas Spain, S.A.U.", "Comercializador": "Aurovitas Spain, S.A.U.", "Genérico": "Sí", "Afecta conducción": "No", "Triángulo negro": "No", "Forma farmacéutica": "COMPRIMIDO RECUBIERTO CON PELÍCULA", "Vías de administración": "VÍA ORAL", "Dosis": "300 mg / comprimido", "ATC-1": "J05AF - Inhibidores de la transcriptasa inversa nucleósidos y nucleótidos (ITIN)", "ATC-2": "J05AF05 - Lamivudina"}, {"Código Nacional": 817452, "Nombre": "ZEFFIX 5 mg/ml SOLUCION ORAL", "Principios activos": "LAMIVUDINA 5 mg", "Laboratorio titular": "Glaxosmithkline Trading Services Limited", "Comercializador": "Glaxosmithkline S.A.", "Genérico": "No", "Afecta conducción": "No", "Triángulo negro": "No", "Forma farmacéutica": "SOLUCIÓN ORAL", "Vías de administración": "VÍA ORAL", "Dosis": "Desconocida", "ATC-1": "J05AF - Inhibidores de la transcriptasa inversa nucleósidos y nucleótidos (ITIN)", "ATC-2": "J05AF05 - Lamivudina"}, {"Código Nacional": 714422, "Nombre": "VEMLIDY 25 MG COMPRIMIDOS RECUBIERTOS CON PELICULA", "Principios activos": "TENOFOVIR ALAFENAMIDA 25 mg", "Laboratorio titular": "Gilead Sciences Ireland Unlimited Company", "Comercializador": "Gilead Sciences S.L.", "Genérico": "No", "Afecta conducción": "Sí", "Triángulo negro": "No", "Forma farmacéutica": "COMPRIMIDO RECUBIERTO CON PELÍCULA", "Vías de administración": "VÍA ORAL", "Dosis": "25 mg", "ATC-1": "J05AF - Inhibidores de la transcriptasa inversa nucleósidos y nucleótidos (ITIN)", "ATC-2": "J05AF13 - Tenofovir alafenamida"}, {"Código Nacional": 718764, "Nombre": "TENOFOVIR DISOPROXILO GLENMARK 245 MG COMPRIMIDOS RECUBIERTOS CON PELICULA EFG", "Principios activos": "TENOFOVIR DISOPROXILO FOSFATO 291 mg", "Laboratorio titular": "Glenmark Arzneimittel Gmbh", "Comercializador": "Glenmark Farmaceutica S.L.U", "Genérico": "Sí", "Afecta conducción": "Sí", "Triángulo negro": "No", "Forma farmacéutica": "COMPRIMIDO RECUBIERTO CON PELÍCULA", "Vías de administración": "VÍA ORAL", "Dosis": "245 mg", "ATC-1": "J05AF - Inhibidores de la transcriptasa inversa nucleósidos y nucleótidos (ITIN)", "ATC-2": "J05AF07 - Tenofovir disoproxilo"}, {"Código Nacional": 714432, "Nombre": "TENOFOVIR DISOPROXILO TEVA 245 MG COMPRIMIDOS RECUBIERTOS CON PELICULA EFG", "Principios activos": "TENOFOVIR DISOPROXILO FOSFATO 291,22 mg", "Laboratorio titular": "Teva Pharma S.L.U.", "Comercializador": "Teva Pharma S.L.U.", "Genérico": "Sí", "Afecta conducción": "Sí", "Triángulo negro": "No", "Forma farmacéutica": "COMPRIMIDO RECUBIERTO CON PELÍCULA", "Vías de administración": "VÍA ORAL", "Dosis": "245 mg", "ATC-1": "J05AF - Inhibidores de la transcriptasa inversa nucleósidos y nucleótidos (ITIN)", "ATC-2": "J05AF07 - Tenofovir disoproxilo"}, {"Código Nacional": 698191, "Nombre": "Viread 123 mg COMPRIMIDOS RECUBIERTOS CON PELICULA", "Principios activos": "TENOFOVIR DISOPROXILO FUMARATO 150 mg", "Laboratorio titular": "Gilead Sciences Ireland Unlimited Company", "Comercializador": "Gilead Sciences S.L.", "Genérico": "No", "Afecta conducción": "Sí", "Triángulo negro": "No", "Forma farmacéutica": "COMPRIMIDO RECUBIERTO CON PELÍCULA", "Vías de administración": "VÍA ORAL", "Dosis": "123 mg", "ATC-1": "J05AF - Inhibidores de la transcriptasa inversa nucleósidos y nucleótidos (ITIN)", "ATC-2": "J05AF07 - Tenofovir disoproxilo"}, {"Código Nacional": 698192, "Nombre": "Viread 163 mg COMPRIMIDOS RECUBIERTOS CON PELICULA", "Principios activos": "TENOFOVIR DISOPROXILO FUMARATO 200 mg", "Laboratorio titular": "Gilead Sciences Ireland Unlimited Company", "Comercializador": "Gilead Sciences S.L.", "Genérico": "No", "Afecta conducción": "Sí", "Triángulo negro": "No", "Forma farmacéutica": "COMPRIMIDO RECUBIERTO CON PELÍCULA", "Vías de administración": "VÍA ORAL", "Dosis": "163 mg", "ATC-1": "J05AF - Inhibidores de la transcriptasa inversa nucleósidos y nucleótidos (ITIN)", "ATC-2": "J05AF07 - Tenofovir disoproxilo"}, {"Código Nacional": 818435, "Nombre": "VIREAD 245 mg COMPRIMIDOS RECUBIERTOS CON PELICULA", "Principios activos": "TENOFOVIR DISOPROXILO FUMARATO 245 mg", "Laboratorio titular": "Gilead Sciences Ireland Unlimited Company", "Comercializador": "Gilead Sciences S.L.", "Genérico": "No", "Afecta conducción": "Sí", "Triángulo negro": "No", "Forma farmacéutica": "COMPRIMIDO RECUBIERTO CON PELÍCULA", "Vías de administración": "VÍA ORAL", "Dosis": "245 mg", "ATC-1": "J05AF - Inhibidores de la transcriptasa inversa nucleósidos y nucleótidos (ITIN)", "ATC-2": "J05AF07 - Tenofovir disoproxilo"}, {"Código Nacional": 698193, "Nombre": "Viread 204 mg COMPRIMIDOS RECUBIERTOS CON PELICULA", "Principios activos": "TENOFOVIR DISOPROXILO FUMARATO 250 mg", "Laboratorio titular": "Gilead Sciences Ireland Unlimited Company", "Comercializador": "Gilead Sciences S.L.", "Genérico": "No", "Afecta conducción": "Sí", "Triángulo negro": "No", "Forma farmacéutica": "COMPRIMIDO RECUBIERTO CON PELÍCULA", "Vías de administración": "VÍA ORAL", "Dosis": "204 mg", "ATC-1": "J05AF - Inhibidores de la transcriptasa inversa nucleósidos y nucleótidos (ITIN)", "ATC-2": "J05AF07 - Tenofovir disoproxilo"}, {"Código Nacional": 726518, "Nombre": "TENOFOVIR DISOPROXILO ACCORPHARMA 245 MG COMPRIMIDOS RECUBIERTOS CON PELICULA EFG", "Principios activos": "TENOFOVIR DISOPROXILO FUMARATO 300 mg", "Laboratorio titular": "Accord Healthcare S.L.U.", "Comercializador": "Accord Healthcare S.L.U.", "Genérico": "Sí", "Afecta conducción": "Sí", "Triángulo negro": "No", "Forma farmacéutica": "COMPRIMIDO RECUBIERTO CON PELÍCULA", "Vías de administración": "VÍA ORAL", "Dosis": "245 mg", "ATC-1": "J05AF - Inhibidores de la transcriptasa inversa nucleósidos y nucleótidos (ITIN)", "ATC-2": "J05AF07 - Tenofovir disoproxilo"}, {"Código Nacional": 730111, "Nombre": "TENOFOVIR DISOPROXILO MACLEODS 245 MG COMPRIMIDOS RECUBIERTOS CON PELICULA EFG", "Principios activos": "TENOFOVIR DISOPROXILO FUMARATO 300 mg", "Laboratorio titular": "Macleods Pharma Espana S.L.U.", "Comercializador": "Macleods Pharma Espana S.L.U.", "Genérico": "Sí", "Afecta conducción": "Sí", "Triángulo negro": "No", "Forma farmacéutica": "COMPRIMIDO RECUBIERTO CON PELÍCULA", "Vías de administración": "VÍA ORAL", "Dosis": "245 mg", "ATC-1": "J05AF - Inhibidores de la transcriptasa inversa nucleósidos y nucleótidos (ITIN)", "ATC-2": "J05AF07 - Tenofovir disoproxilo"}, {"Código Nacional": 722150, "Nombre": "TENOFOVIR DISOPROXILO CIPLA 245 MG COMPRIMIDOS RECUBIERTOS CON PELICULA EFG", "Principios activos": "TENOFOVIR DISOPROXILO FUMARATO 300,00 mg", "Laboratorio titular": "Cipla Europe", "Comercializador": "Cipla Europe Nv Sucursal En Espana", "Genérico": "Sí", "Afecta conducción": "Sí", "Triángulo negro": "No", "Forma farmacéutica": "COMPRIMIDO RECUBIERTO CON PELÍCULA", "Vías de administración": "VÍA ORAL", "Dosis": "245 mg", "ATC-1": "J05AF - Inhibidores de la transcriptasa inversa nucleósidos y nucleótidos (ITIN)", "ATC-2": "J05AF07 - Tenofovir disoproxilo"}, {"Código Nacional": 718675, "Nombre": "TENOFOVIR DISOPROXILO AUROVITAS 245 MG COMPRIMIDOS RECUBIERTOS CON PELICULA EFG", "Principios activos": "TENOFOVIR DISOPROXILO FUMARATO 300,000 mg", "Laboratorio titular": "Aurovitas Spain, S.A.U.", "Comercializador": "Aurovitas Spain, S.A.U.", "Genérico": "Sí", "Afecta conducción": "Sí", "Triángulo negro": "No", "Forma farmacéutica": "COMPRIMIDO RECUBIERTO CON PELÍCULA", "Vías de administración": "VÍA ORAL", "Dosis": "245 mg", "ATC-1": "J05AF - Inhibidores de la transcriptasa inversa nucleósidos y nucleótidos (ITIN)", "ATC-2": "J05AF07 - Tenofovir disoproxilo"}, {"Código Nacional": 698194, "Nombre": "Viread 33 mg/g GRANULOS", "Principios activos": "TENOFOVIR DISOPROXILO FUMARATO 40 mg", "Laboratorio titular": "Gilead Sciences Ireland Unlimited Company", "Comercializador": "Gilead Sciences S.L.", "Genérico": "No", "Afecta conducción": "Sí", "Triángulo negro": "No", "Forma farmacéutica": "GRANULADO", "Vías de administración": "VÍA ORAL", "Dosis": "33 mg/g", "ATC-1": "J05AF - Inhibidores de la transcriptasa inversa nucleósidos y nucleótidos (ITIN)", "ATC-2": "J05AF07 - Tenofovir disoproxilo"}, {"Código Nacional": 976415, "Nombre": "ZIDOVUDINA ACCORD 50 mg/5 ml SOLUCION ORAL EFG", "Principios activos": "ZIDOVUDINA 10 mg", "Laboratorio titular": "Accord Healthcare S.L.U.", "Comercializador": "Accord Healthcare S.L.U.", "Genérico": "Sí", "Afecta conducción": "No", "Triángulo negro": "No", "Forma farmacéutica": "SOLUCIÓN ORAL", "Vías de administración": "VÍA ORAL", "Dosis": "10 mg", "ATC-1": "J05AF - Inhibidores de la transcriptasa inversa nucleósidos y nucleótidos (ITIN)", "ATC-2": "J05AF01 - Zidovudina"}, {"Código Nacional": 659704, "Nombre": "ZIDOVUDINA ALTAN 2 MG/ML SOLUCION PARA PERFUSION", "Principios activos": "ZIDOVUDINA 2 mg", "Laboratorio titular": "Altan Pharmaceuticals Sa", "Comercializador": "Altan Pharmaceuticals Sa", "Genérico": "No", "Afecta conducción": "No", "Triángulo negro": "No", "Forma farmacéutica": "SOLUCIÓN PARA PERFUSIÓN", "Vías de administración": "VÍA INTRAVENOSA", "Dosis": "2 MG/ML", "ATC-1": "J05AF - Inhibidores de la transcriptasa inversa nucleósidos y nucleótidos (ITIN)", "ATC-2": "J05AF01 - Zidovudina"}, {"Código Nacional": 695403, "Nombre": "RETROVIR 250 mg CAPSULAS DURAS", "Principios activos": "ZIDOVUDINA 250 mg", "Laboratorio titular": "Laboratorios Viiv Healthcare S.L.", "Comercializador": "Laboratorios Viiv Healthcare S.L.", "Genérico": "No", "Afecta conducción": "No", "Triángulo negro": "No", "Forma farmacéutica": "CÁPSULA DURA", "Vías de administración": "VÍA ORAL", "Dosis": "250 mg", "ATC-1": "J05AF - Inhibidores de la transcriptasa inversa nucleósidos y nucleótidos (ITIN)", "ATC-2": "J05AF01 - Zidovudina"}, {"Código Nacional": 724313, "Nombre": "PIFELTRO 100 MG COMPRIMIDOS RECUBIERTOS CON PELICULA", "Principios activos": "DORAVIRINA 100 mg", "Laboratorio titular": "Merck Sharp & Dohme B.V.", "Comercializador": "Merck Sharp & Dohme De Espana S.A.", "Genérico": "No", "Afecta conducción": "Sí", "Triángulo negro": "No", "Forma farmacéutica": "COMPRIMIDO RECUBIERTO CON PELÍCULA", "Vías de administración": "VÍA ORAL", "Dosis": "100 mg", "ATC-1": "J05AG - Inhibidores de la transcriptasa inversa no nucleósidos (ITINN)", "ATC-2": "J05AG06 - Doravirina"}, {"Código Nacional": 704194, "Nombre": "EFAVIRENZ AUROVITAS 600 MG COMPRIMIDOS RECUBIERTOS CON PELICULA EFG", "Principios activos": "EFAVIRENZ 600 mg", "Laboratorio titular": "Aurovitas Spain, S.A.U.", "Comercializador": "Aurovitas Spain, S.A.U.", "Genérico": "Sí", "Afecta conducción": "Sí", "Triángulo negro": "No", "Forma farmacéutica": "COMPRIMIDO RECUBIERTO CON PELÍCULA", "Vías de administración": "VÍA ORAL", "Dosis": "600 mg", "ATC-1": "J05AG - Inhibidores de la transcriptasa inversa no nucleósidos (ITINN)", "ATC-2": "J05AG03 - Efavirenz"}, {"Código Nacional": 698270, "Nombre": "Efavirenz Teva 600 mg comprimidos recubiertos con pelicula EFG", "Principios activos": "EFAVIRENZ 600,0 mg", "Laboratorio titular": "Teva B.V.", "Comercializador": "Teva Pharma S.L.U.", "Genérico": "Sí", "Afecta conducción": "Sí", "Triángulo negro": "No", "Forma farmacéutica": "COMPRIMIDO RECUBIERTO CON PELÍCULA", "Vías de administración": "VÍA ORAL", "Dosis": "600 mg", "ATC-1": "J05AG - Inhibidores de la transcriptasa inversa no nucleósidos (ITINN)", "ATC-2": "J05AG03 - Efavirenz"}, {"Código Nacional": 686730, "Nombre": "INTELENCE 200 MG COMPRIMIDOS", "Principios activos": "ETRAVIRINA 200 mg", "Laboratorio titular": "Janssen-Cilag International N.V", "Comercializador": "Janssen Cilag S.A.", "Genérico": "No", "Afecta conducción": "No", "Triángulo negro": "No", "Forma farmacéutica": "COMPRIMIDO", "Vías de administración": "VÍA ORAL", "Dosis": "200 mg etravirina", "ATC-1": "J05AG - Inhibidores de la transcriptasa inversa no nucleósidos (ITINN)", "ATC-2": "J05AG04 - Etravirina"}, {"Código Nacional": 695149, "Nombre": "NEVIRAPINA NORMON 200 MG COMPRIMIDOS EFG", "Principios activos": "NEVIRAPINA 200 mg", "Laboratorio titular": "Laboratorios Normon S.A.", "Comercializador": "Laboratorios Normon S.A.", "Genérico": "Sí", "Afecta conducción": "No", "Triángulo negro": "No", "Forma farmacéutica": "COMPRIMIDO", "Vías de administración": "VÍA ORAL", "Dosis": "200 mg", "ATC-1": "J05AG - Inhibidores de la transcriptasa inversa no nucleósidos (ITINN)", "ATC-2": "J05AG01 - Nevirapina"}, {"Código Nacional": 681336, "Nombre": "NEVIRAPINA KERN PHARMA 200 mg COMPRIMIDOS EFG", "Principios activos": "NEVIRAPINA 200,00 mg", "Laboratorio titular": "Kern Pharma S.L.", "Comercializador": "Kern Pharma S.L.", "Genérico": "Sí", "Afecta conducción": "No", "Triángulo negro": "No", "Forma farmacéutica": "COMPRIMIDO", "Vías de administración": "VÍA ORAL", "Dosis": "200 mg", "ATC-1": "J05AG - Inhibidores de la transcriptasa inversa no nucleósidos (ITINN)", "ATC-2": "J05AG01 - Nevirapina"}, {"Código Nacional": 730767, "Nombre": "NEVIRAPINA AUROVITAS 400 MG COMPRIMIDOS DE LIBERACION PROLONGADA EFG", "Principios activos": "NEVIRAPINA 400 mg", "Laboratorio titular": "Aurovitas Spain, S.A.U.", "Comercializador": "Aurovitas Spain, S.A.U.", "Genérico": "Sí", "Afecta conducción": "No", "Triángulo negro": "No", "Forma farmacéutica": "COMPRIMIDO DE LIBERACIÓN PROLONGADA", "Vías de administración": "VÍA ORAL", "Dosis": "400 mg", "ATC-1": "J05AG - Inhibidores de la transcriptasa inversa no nucleósidos (ITINN)", "ATC-2": "J05AG01 - Nevirapina"}, {"Código Nacional": 712235, "Nombre": "NEVIRAPINA TEVA 400 MG COMPRIMIDOS DE LIBERACION PROLONGADA EFG", "Principios activos": "NEVIRAPINA 400 mg", "Laboratorio titular": "Teva Pharma S.L.U.", "Comercializador": "Teva Pharma S.L.U.", "Genérico": "Sí", "Afecta conducción": "No", "Triángulo negro": "No", "Forma farmacéutica": "COMPRIMIDO DE LIBERACIÓN PROLONGADA", "Vías de administración": "VÍA ORAL", "Dosis": "400 mg", "ATC-1": "J05AG - Inhibidores de la transcriptasa inversa no nucleósidos (ITINN)", "ATC-2": "J05AG01 - Nevirapina"}, {"Código Nacional": 807404, "Nombre": "VIRAMUNE 50 mg/5 ml SUSPENSION ORAL", "Principios activos": "NEVIRAPINA 50 mg", "Laboratorio titular": "Boehringer Ingelheim International Gmbh", "Comercializador": "Boehringer Ingelheim Espana S.A.", "Genérico": "No", "Afecta conducción": "No", "Triángulo negro": "No", "Forma farmacéutica": "SUSPENSIÓN ORAL", "Vías de administración": "VÍA ORAL", "Dosis": "Desconocida", "ATC-1": "J05AG - Inhibidores de la transcriptasa inversa no nucleósidos (ITINN)", "ATC-2": "J05AG01 - Nevirapina"}, {"Código Nacional": 728926, "Nombre": "NEVIRAPINA TARBIS FARMA 400 MG COMPRIMIDOS DE LIBERACION PROLONGADA EFG", "Principios activos": "NEVIRAPINA, ANHIDRA 400 mg", "Laboratorio titular": "Tarbis Farma S.L.", "Comercializador": "Tarbis Farma S.L.", "Genérico": "Sí", "Afecta conducción": "No", "Triángulo negro": "No", "Forma farmacéutica": "COMPRIMIDO DE LIBERACIÓN PROLONGADA", "Vías de administración": "VÍA ORAL", "Dosis": "400 mg", "ATC-1": "J05AG - Inhibidores de la transcriptasa inversa no nucleósidos (ITINN)", "ATC-2": "J05AG01 - Nevirapina"}, {"Código Nacional": 687082, "Nombre": "EDURANT 25 mg COMPRIMIDOS RECUBIERTOS CON PELICULA", "Principios activos": "RILPIVIRINA 25 mg", "Laboratorio titular": "Janssen-Cilag International N.V", "Comercializador": "Janssen Cilag S.A.", "Genérico": "No", "Afecta conducción": "Sí", "Triángulo negro": "No", "Forma farmacéutica": "COMPRIMIDO RECUBIERTO CON PELÍCULA", "Vías de administración": "VÍA ORAL", "Dosis": "25 mg rilpivirina", "ATC-1": "J05AG - Inhibidores de la transcriptasa inversa no nucleósidos (ITINN)", "ATC-2": "J05AG05 - Rilpivirina"}, {"Código Nacional": 730044, "Nombre": "REKAMBYS 900 MG SUSPENSION INYECTABLE DE LIBERACION PROLONGADA", "Principios activos": "RILPIVIRINA 300 mg/ml", "Laboratorio titular": "Janssen-Cilag International N.V", "Comercializador": "Laboratorios Viiv Healthcare S.L.", "Genérico": "No", "Afecta conducción": "Sí", "Triángulo negro": "Sí", "Forma farmacéutica": "SUSPENSION INYECTABLE DE LIBERACION PROLONGADA", "Vías de administración": "VÍA INTRAMUSCULAR", "Dosis": "900 mg", "ATC-1": "J05AG - Inhibidores de la transcriptasa inversa no nucleósidos (ITINN)", "ATC-2": "J05AG05 - Rilpivirina"}, {"Código Nacional": 730112, "Nombre": "VOCABRIA 600 mg SUSPENSION INYECTABLE DE LIBERACION PROLONGADA", "Principios activos": "CABOTEGRAVIR 600 mg", "Laboratorio titular": "Viiv Healthcare B.V.", "Comercializador": "Laboratorios Viiv Healthcare S.L.", "Genérico": "No", "Afecta conducción": "Sí", "Triángulo negro": "Sí", "Forma farmacéutica": "SUSPENSION INYECTABLE DE LIBERACION PROLONGADA", "Vías de administración": "VÍA INTRAMUSCULAR", "Dosis": "600 mg", "ATC-1": "J05AJ - Inhibidores de la integrasa (INI)", "ATC-2": "J05AJ04 - Cabotegravir"}, {"Código Nacional": 730099, "Nombre": "VOCABRIA 30 MG COMPRIMIDOS RECUBIERTOS CON PELICULA", "Principios activos": "CABOTEGRAVIR SODIO 31,62 mg", "Laboratorio titular": "Viiv Healthcare B.V.", "Comercializador": "Laboratorios Viiv Healthcare S.L.", "Genérico": "No", "Afecta conducción": "Sí", "Triángulo negro": "Sí", "Forma farmacéutica": "COMPRIMIDO RECUBIERTO CON PELÍCULA", "Vías de administración": "VÍA ORAL", "Dosis": "30 mg", "ATC-1": "J05AJ - Inhibidores de la integrasa (INI)", "ATC-2": "J05AJ04 - Cabotegravir"}, {"Código Nacional": 715365, "Nombre": "TIVICAY 10 MG COMPRIMIDOS RECUBIERTOS CON PELICULA", "Principios activos": "DOLUTEGRAVIR SODIO 10.50 mg", "Laboratorio titular": "Viiv Healthcare B.V.", "Comercializador": "Laboratorios Viiv Healthcare S.L.", "Genérico": "No", "Afecta conducción": "No", "Triángulo negro": "No", "Forma farmacéutica": "COMPRIMIDO RECUBIERTO CON PELÍCULA", "Vías de administración": "VÍA ORAL", "Dosis": "10 mg", "ATC-1": "J05AJ - Inhibidores de la integrasa (INI)", "ATC-2": "J05AJ03 - Dolutegravir"}, {"Código Nacional": 761744, "Nombre": "TIVICAY 5 MG COMPRIMIDOS DISPERSABLES", "Principios activos": "DOLUTEGRAVIR SODIO 5,26 mg", "Laboratorio titular": "Viiv Healthcare B.V.", "Comercializador": "Laboratorios Viiv Healthcare S.L.", "Genérico": "No", "Afecta conducción": "No", "Triángulo negro": "No", "Forma farmacéutica": "COMPRIMIDO DISPERSABLE", "Vías de administración": "VÍA ORAL", "Dosis": "5 MG", "ATC-1": "J05AJ - Inhibidores de la integrasa (INI)", "ATC-2": "J05AJ03 - Dolutegravir"}, {"Código Nacional": 701414, "Nombre": "TIVICAY 50 MG COMPRIMIDOS RECUBIERTOS CON PELICULA", "Principios activos": "DOLUTEGRAVIR SODIO 52,6 mg", "Laboratorio titular": "Viiv Healthcare B.V.", "Comercializador": "Laboratorios Viiv Healthcare S.L.", "Genérico": "No", "Afecta conducción": "No", "Triángulo negro": "No", "Forma farmacéutica": "COMPRIMIDO RECUBIERTO CON PELÍCULA", "Vías de administración": "VÍA ORAL", "Dosis": "50 mg", "ATC-1": "J05AJ - Inhibidores de la integrasa (INI)", "ATC-2": "J05AJ03 - Dolutegravir"}, {"Código Nacional": 697395, "Nombre": "ISENTRESS 100 MG COMPRIMIDOS MASTICABLES", "Principios activos": "RALTEGRAVIR 100 mg", "Laboratorio titular": "Merck Sharp & Dohme B.V.", "Comercializador": "Merck Sharp & Dohme De Espana S.A.", "Genérico": "No", "Afecta conducción": "No", "Triángulo negro": "No", "Forma farmacéutica": "COMPRIMIDO MASTICABLE", "Vías de administración": "VÍA ORAL", "Dosis": "100 mg", "ATC-1": "J05AJ - Inhibidores de la integrasa (INI)", "ATC-2": "J05AJ01 - Raltegravir"}, {"Código Nacional": 697396, "Nombre": "ISENTRESS 25 MG COMPRIMIDOS MASTICABLES", "Principios activos": "RALTEGRAVIR 25 mg", "Laboratorio titular": "Merck Sharp & Dohme B.V.", "Comercializador": "Merck Sharp & Dohme De Espana S.A.", "Genérico": "No", "Afecta conducción": "No", "Triángulo negro": "No", "Forma farmacéutica": "COMPRIMIDO MASTICABLE", "Vías de administración": "VÍA ORAL", "Dosis": "25 mg", "ATC-1": "J05AJ - Inhibidores de la integrasa (INI)", "ATC-2": "J05AJ01 - Raltegravir"}, {"Código Nacional": 660176, "Nombre": "ISENTRESS 400 MG COMPRIMIDOS RECUBIERTOS CON PELICULA", "Principios activos": "RALTEGRAVIR 400 mg", "Laboratorio titular": "Merck Sharp & Dohme B.V.", "Comercializador": "Merck Sharp & Dohme De Espana S.A.", "Genérico": "No", "Afecta conducción": "No", "Triángulo negro": "No", "Forma farmacéutica": "COMPRIMIDO RECUBIERTO CON PELÍCULA", "Vías de administración": "VÍA ORAL", "Dosis": "60 mg", "ATC-1": "J05AJ - Inhibidores de la integrasa (INI)", "ATC-2": "J05AJ01 - Raltegravir"}, {"Código Nacional": 718507, "Nombre": "ISENTRESS 600 MG COMPRIMIDOS RECUBIERTOS CON PELICULA", "Principios activos": "RALTEGRAVIR 600 mg", "Laboratorio titular": "Merck Sharp & Dohme B.V.", "Comercializador": "Merck Sharp & Dohme De Espana S.A.", "Genérico": "No", "Afecta conducción": "No", "Triángulo negro": "No", "Forma farmacéutica": "COMPRIMIDO RECUBIERTO CON PELÍCULA", "Vías de administración": "VÍA ORAL", "Dosis": "600 mg", "ATC-1": "J05AJ - Inhibidores de la integrasa (INI)", "ATC-2": "J05AJ01 - Raltegravir"}, {"Código Nacional": 765119, "Nombre": "RALTEGRAVIR DR. REDDYS 600 MG COMPRIMIDOS RECUBIERTOS CON PELICULA EFG", "Principios activos": "RALTEGRAVIR POTASIO 651,42 mg", "Laboratorio titular": "Reddy Pharma Iberia S.A.", "Comercializador": "Reddy Pharma Iberia S.A.", "Genérico": "Sí", "Afecta conducción": "No", "Triángulo negro": "No", "Forma farmacéutica": "COMPRIMIDO RECUBIERTO CON PELÍCULA", "Vías de administración": "VÍA ORAL", "Dosis": "600 mg", "ATC-1": "J05AJ - Inhibidores de la integrasa (INI)", "ATC-2": "J05AJ01 - Raltegravir"}, {"Código Nacional": 711415, "Nombre": "ABACAVIR/LAMIVUDINA DR. REDDYS 600 MG/300 MG COMPRIMIDOS RECUBIERTOS CON PELICULA EFG", "Principios activos": "ABACAVIR 600 mg; LAMIVUDINA 300 mg", "Laboratorio titular": "Reddy Pharma Iberia S.A.", "Comercializador": "Reddy Pharma Iberia S.A.", "Genérico": "Sí", "Afecta conducción": "No", "Triángulo negro": "No", "Forma farmacéutica": "COMPRIMIDO RECUBIERTO CON PELÍCULA", "Vías de administración": "VÍA ORAL", "Dosis": "600 mg/300 mg", "ATC-1": "J05AR - Combinaciones", "ATC-2": "J05AR02 - Lamivudina y abacavir"}, {"Código Nacional": 725918, "Nombre": "ABACAVIR/LAMIVUDINA KERN PHARMA 600 MG/300 MG COMPRIMIDOS RECUBIERTOS CON PELICULA EFG", "Principios activos": "ABACAVIR 600 mg; LAMIVUDINA 300 mg", "Laboratorio titular": "Kern Pharma S.L.", "Comercializador": "Kern Pharma S.L.", "Genérico": "Sí", "Afecta conducción": "No", "Triángulo negro": "No", "Forma farmacéutica": "COMPRIMIDO RECUBIERTO CON PELÍCULA", "Vías de administración": "VÍA ORAL", "Dosis": "600 mg/ 300 mg", "ATC-1": "J05AR - Combinaciones", "ATC-2": "J05AR02 - Lamivudina y abacavir"}, {"Código Nacional": 712262, "Nombre": "ABACAVIR/LAMIVUDINA TEVA 600 MG/300 MG COMPRIMIDOS RECUBIERTOS CON PELICULA EFG", "Principios activos": "ABACAVIR 600 mg; LAMIVUDINA 300 mg", "Laboratorio titular": "Teva Pharma S.L.U.", "Comercializador": "Teva Pharma S.L.U.", "Genérico": "Sí", "Afecta conducción": "No", "Triángulo negro": "No", "Forma farmacéutica": "COMPRIMIDO RECUBIERTO CON PELÍCULA", "Vías de administración": "VÍA ORAL", "Dosis": "600 mg / 300 mg", "ATC-1": "J05AR - Combinaciones", "ATC-2": "J05AR02 - Lamivudina y abacavir"}, {"Código Nacional": 719707, "Nombre": "ABACAVIR/LAMIVUDINA GLENMARK 600 MG/300 MG COMPRIMIDOS RECUBIERTOS CON PELICULA EFG", "Principios activos": "ABACAVIR CLORHIDRATO 676.401 mg; LAMIVUDINA 300 mg", "Laboratorio titular": "Glenmark Arzneimittel Gmbh", "Comercializador": "Glenmark Farmaceutica S.L.U", "Genérico": "Sí", "Afecta conducción": "No", "Triángulo negro": "No", "Forma farmacéutica": "COMPRIMIDO RECUBIERTO CON PELÍCULA", "Vías de administración": "VÍA ORAL", "Dosis": "600 mg/300 mg", "ATC-1": "J05AR - Combinaciones", "ATC-2": "J05AR02 - Lamivudina y abacavir"}, {"Código Nacional": 650403, "Nombre": "KIVEXA 600 MG/300 MG COMPRIMIDOS RECUBIERTOS CON PELICULA", "Principios activos": "ABACAVIR SULFATO 600 mg; LAMIVUDINA 300 mg", "Laboratorio titular": "Viiv Healthcare B.V.", "Comercializador": "Laboratorios Viiv Healthcare S.L.", "Genérico": "No", "Afecta conducción": "No", "Triángulo negro": "No", "Forma farmacéutica": "COMPRIMIDO RECUBIERTO CON PELÍCULA", "Vías de administración": "VÍA ORAL", "Dosis": "600/300 mg/mg", "ATC-1": "J05AR - Combinaciones", "ATC-2": "J05AR02 - Lamivudina y abacavir"}, {"Código Nacional": 733207, "Nombre": "ABACAVIR/LAMIVUDINA TARBIS 600 MG/300 MG COMPRIMIDOS RECUBIERTOS CON PELICULA EFG", "Principios activos": "ABACAVIR SULFATO 702,762 mg; LAMIVUDINA 300 mg", "Laboratorio titular": "Tarbis Farma S.L.", "Comercializador": "Tarbis Farma S.L.", "Genérico": "Sí", "Afecta conducción": "No", "Triángulo negro": "No", "Forma farmacéutica": "COMPRIMIDO RECUBIERTO CON PELÍCULA", "Vías de administración": "VÍA ORAL", "Dosis": "600 MG/300 MG", "ATC-1": "J05AR - Combinaciones", "ATC-2": "J05AR02 - Lamivudina y abacavir"}, {"Código Nacional": 730479, "Nombre": "ABACAVIR/LAMIVUDINA MACLEODS 600 MG/300 MG COMPRIMIDOS RECUBIERTOS CON PELICULA EFG", "Principios activos": "ABACAVIR SULFATO 702,78 mg; LAMIVUDINA 300 mg", "Laboratorio titular": "Macleods Pharma Espana S.L.U.", "Comercializador": "Macleods Pharma Espana S.L.U.", "Genérico": "Sí", "Afecta conducción": "No", "Triángulo negro": "No", "Forma farmacéutica": "COMPRIMIDO RECUBIERTO CON PELÍCULA", "Vías de administración": "VÍA ORAL", "Dosis": "600 mg/300 mg", "ATC-1": "J05AR - Combinaciones", "ATC-2": "J05AR02 - Lamivudina y abacavir"}, {"Código Nacional": 721596, "Nombre": "ABACAVIR/LAMIVUDINA VIATRIS 600 MG/300 MG COMPRIMIDOS RECUBIERTOS CON PELICULA EFG", "Principios activos": "ABACAVIR SULFATO 702,78 mg; LAMIVUDINA 300 mg", "Laboratorio titular": "Viatris Limited", "Comercializador": "Viatris Pharmaceuticals S.L.", "Genérico": "Sí", "Afecta conducción": "No", "Triángulo negro": "No", "Forma farmacéutica": "COMPRIMIDO RECUBIERTO CON PELÍCULA", "Vías de administración": "VÍA ORAL", "Dosis": "600 mg/300 mg", "ATC-1": "J05AR - Combinaciones", "ATC-2": "J05AR02 - Lamivudina y abacavir"}, {"Código Nacional": 715527, "Nombre": "ABACAVIR/LAMIVUDINA AUROVITAS 600 MG/300 MG COMPRIMIDOS RECUBIERTOS CON PELICULA EFG", "Principios activos": "ABACAVIR SULFATO 702,780 mg; LAMIVUDINA 300,000 mg", "Laboratorio titular": "Aurovitas Spain, S.A.U.", "Comercializador": "Aurovitas Spain, S.A.U.", "Genérico": "Sí", "Afecta conducción": "No", "Triángulo negro": "No", "Forma farmacéutica": "COMPRIMIDO RECUBIERTO CON PELÍCULA", "Vías de administración": "VÍA ORAL", "Dosis": "600 mg /300 mg", "ATC-1": "J05AR - Combinaciones", "ATC-2": "J05AR02 - Lamivudina y abacavir"}, {"Código Nacional": 707277, "Nombre": "EVOTAZ 300 MG/150 MG COMPRIMIDOS RECUBIERTOS CON PELICULA", "Principios activos": "ATAZANAVIR SULFATO 341,70 mg; COBICISTAT 294,12 mg", "Laboratorio titular": "Bristol-Myers Squibb Pharma Eeig", "Comercializador": "Bristol Myers Squibb S.A.", "Genérico": "No", "Afecta conducción": "No", "Triángulo negro": "No", "Forma farmacéutica": "COMPRIMIDO RECUBIERTO CON PELÍCULA", "Vías de administración": "VÍA ORAL", "Dosis": "300 mg/150 mg", "ATC-1": "J05AR - Combinaciones", "ATC-2": "J05AR15 - Atazanavir y cobicistat"}, {"Código Nacional": 722193, "Nombre": "BIKTARVY 50 MG/200 MG/25 MG COMPRIMIDOS RECUBIERTOS CON PELICULA", "Principios activos": "BICTEGRAVIR SODIO 52,45 mg; EMTRICITABINA 200 mg; TENOFOVIR ALAFENAMIDA FUMARATO 28,04 mg", "Laboratorio titular": "Gilead Sciences Ireland Unlimited Company", "Comercializador": "Gilead Sciences S.L.", "Genérico": "No", "Afecta conducción": "Sí", "Triángulo negro": "No", "Forma farmacéutica": "COMPRIMIDO RECUBIERTO CON PELÍCULA", "Vías de administración": "VÍA ORAL", "Dosis": "200 mg/25 mg/50 mg", "ATC-1": "J05AR - Combinaciones", "ATC-2": "J05AR20 - Emtricitabina, tenofovir alafenamida y bictegravir"}, {"Código Nacional": 698434, "Nombre": "STRIBILD 150mg/150mg/200mg/245mg COMPRIMIDOS RECUBIERTOS CON PELICULA", "Principios activos": "COBICISTAT 150 mg; EMTRICITABINA 200 mg; TENOFOVIR DISOPROXILO FUMARATO 245 mg; ELVITEGRAVIR 150 mg", "Laboratorio titular": "Gilead Sciences Ireland Unlimited Company", "Comercializador": "Gilead Sciences S.L.", "Genérico": "No", "Afecta conducción": "Sí", "Triángulo negro": "No", "Forma farmacéutica": "COMPRIMIDO RECUBIERTO CON PELÍCULA", "Vías de administración": "VÍA ORAL", "Dosis": "ELVITEGRAVIR 150 MG/ COBICISTAT 150 MG/ EMTICITABINA 200MG/ TENOFOVIR DISOPROXIL 245 MG", "ATC-1": "J05AR - Combinaciones", "ATC-2": "J05AR09 - Emtricitabina, tenofovir disoproxilo, elvitegravir y cobicistat"}, {"Código Nacional": 719238, "Nombre": "SYMTUZA 800 MG/150 MG/200 MG/10 MG COMPRIMIDOS RECUBIERTOS CON PELICULA", "Principios activos": "DARUNAVIR ETANOLATO 867 mg; COBICISTAT 150 mg; EMTRICITABINA 200 mg; TENOFOVIR ALAFENAMIDA FUMARATO 11,2 mg", "Laboratorio titular": "Janssen-Cilag International N.V", "Comercializador": "Janssen Cilag S.A.", "Genérico": "No", "Afecta conducción": "Sí", "Triángulo negro": "No", "Forma farmacéutica": "COMPRIMIDO", "Vías de administración": "VÍA ORAL", "Dosis": "800 mg/150 mg/200 mg/10 mg", "ATC-1": "J05AR - Combinaciones", "ATC-2": "J05AR22 - Emtricitabina, tenofovir alafenamida, darunavir y cobicistat"}, {"Código Nacional": 704744, "Nombre": "REZOLSTA 800 MG/150 MG COMPRIMIDOS RECUBIERTOS CON PELICULA", "Principios activos": "DARUNAVIR ETANOLATO 867,28 mg; COBICISTAT 150 mg", "Laboratorio titular": "Janssen-Cilag International N.V", "Comercializador": "Janssen Cilag S.A.", "Genérico": "No", "Afecta conducción": "No", "Triángulo negro": "No", "Forma farmacéutica": "COMPRIMIDO RECUBIERTO CON PELÍCULA", "Vías de administración": "VÍA ORAL", "Dosis": "darunavir 800 mg / cobicistat 150 mg", "ATC-1": "J05AR - Combinaciones", "ATC-2": "J05AR14 - Darunavir y cobicistat"}, {"Código Nacional": 762746, "Nombre": "TRIUMEQ 5 MG/60 MG/30 MG COMPRIMIDOS DISPERSABLES", "Principios activos": "DOLUTEGRAVIR SODIO 5,26 mg; LAMIVUDINA 30 mg; ABACAVIR SULFATO 70,20 mg", "Laboratorio titular": "Viiv Healthcare B.V.", "Comercializador": "Laboratorios Viiv Healthcare S.L.", "Genérico": "No", "Afecta conducción": "No", "Triángulo negro": "No", "Forma farmacéutica": "COMPRIMIDO DISPERSABLE", "Vías de administración": "VÍA ORAL", "Dosis": "5 MG/60 MG/30 MG", "ATC-1": "J05AR - Combinaciones", "ATC-2": "J05AR13 - Lamivudina, abacavir y dolutegravir"}, {"Código Nacional": 703882, "Nombre": "TRIUMEQ 50 MG/600 MG/300 MG COMPRIMIDOS RECUBIERTOS CON PELICULA", "Principios activos": "DOLUTEGRAVIR SODIO 52,6 mg; ABACAVIR SULFATO 702,0 mg; LAMIVUDINA 300 mg", "Laboratorio titular": "Viiv Healthcare B.V.", "Comercializador": "Laboratorios Viiv Healthcare S.L.", "Genérico": "No", "Afecta conducción": "No", "Triángulo negro": "No", "Forma farmacéutica": "COMPRIMIDO RECUBIERTO CON PELÍCULA", "Vías de administración": "VÍA ORAL", "Dosis": "50mg/600mg/300mg", "ATC-1": "J05AR - Combinaciones", "ATC-2": "J05AR13 - Lamivudina, abacavir y dolutegravir"}, {"Código Nacional": 721961, "Nombre": "JULUCA 50 MG/25 MG COMPRIMIDOS RECUBIERTOS CON PELICULA", "Principios activos": "DOLUTEGRAVIR SODIO 52,62 mg; RILPIVIRINA HIDROCLORURO 27,50 mg", "Laboratorio titular": "Viiv Healthcare B.V.", "Comercializador": "Laboratorios Viiv Healthcare S.L.", "Genérico": "No", "Afecta conducción": "Sí", "Triángulo negro": "No", "Forma farmacéutica": "COMPRIMIDO RECUBIERTO CON PELÍCULA", "Vías de administración": "VÍA ORAL", "Dosis": "50 - REVISAR mg", "ATC-1": "J05AR - Combinaciones", "ATC-2": "J05AR21 - Dolutegravir y Rilpivirina"}, {"Código Nacional": 763454, "Nombre": "DOVATO 50 MG/300 MG COMPRIMIDOS RECUBIERTOS CON PELICULA", "Principios activos": "DOLUTEGRAVIR SODIO 52.6 mg; LAMIVUDINA 300 mg", "Laboratorio titular": "Viiv Healthcare B.V.", "Comercializador": "Laboratorios Viiv Healthcare S.L.", "Genérico": "No", "Afecta conducción": "No", "Triángulo negro": "No", "Forma farmacéutica": "COMPRIMIDO RECUBIERTO CON PELÍCULA", "Vías de administración": "VÍA ORAL", "Dosis": "50 mg/300 mg", "ATC-1": "J05AR - Combinaciones", "ATC-2": "J05AR25 - Lamivudina y dolutegravir"}, {"Código Nacional": 715547, "Nombre": "EFAVIRENZ/EMTRICITABINA/TENOFOVIR DISOPROXILO TEVA 600 MG/200 MG/245 MG COMPRIMIDOS RECUBIERTOS CON PELICULA EFG", "Principios activos": "EFAVIRENZ 600 mg; EMTRICITABINA 200 mg; TENOFOVIR DISOPROXILO FOSFATO 291,22 mg", "Laboratorio titular": "Teva Pharma S.L.U.", "Comercializador": "Teva Pharma S.L.U.", "Genérico": "Sí", "Afecta conducción": "Sí", "Triángulo negro": "No", "Forma farmacéutica": "COMPRIMIDO RECUBIERTO CON PELÍCULA", "Vías de administración": "VÍA ORAL", "Dosis": "600 mg/200 mg/245 mg", "ATC-1": "J05AR - Combinaciones", "ATC-2": "J05AR06 - Emtricitabina, tenofovir disoproxilo y efavirenz"}, {"Código Nacional": 727960, "Nombre": "EFAVIRENZ/EMTRICITABINA/TENOFOVIR DISOPROXILO AUROVITAS 600 MG/200 MG/245 MG COMPRIMIDOS RECUBIERTOS CON PELICULA EFG", "Principios activos": "EFAVIRENZ 600 mg; EMTRICITABINA 200 mg; TENOFOVIR DISOPROXILO FUMARATO 300 mg", "Laboratorio titular": "Aurovitas Spain, S.A.U.", "Comercializador": "Aurovitas Spain, S.A.U.", "Genérico": "Sí", "Afecta conducción": "Sí", "Triángulo negro": "No", "Forma farmacéutica": "COMPRIMIDO RECUBIERTO CON PELÍCULA", "Vías de administración": "VÍA ORAL", "Dosis": "600 mg/200 mg/245 mg", "ATC-1": "J05AR - Combinaciones", "ATC-2": "J05AR06 - Emtricitabina, tenofovir disoproxilo y efavirenz"}, {"Código Nacional": 726526, "Nombre": "EFAVIRENZ/EMTRICITABINA/TENOFOVIR DISOPROXILO GLENMARK 600 MG/200 MG/245 MG COMPRIMIDOS RECUBIERTOS CON PELICULA EFG", "Principios activos": "EFAVIRENZ 600 mg; EMTRICITABINA 200 mg; TENOFOVIR DISOPROXILO FUMARATO 300 mg", "Laboratorio titular": "Glenmark Arzneimittel Gmbh", "Comercializador": "Glenmark Farmaceutica S.L.U", "Genérico": "Sí", "Afecta conducción": "Sí", "Triángulo negro": "No", "Forma farmacéutica": "COMPRIMIDO RECUBIERTO CON PELÍCULA", "Vías de administración": "VÍA ORAL", "Dosis": "600 mg/200 mg/245 mg", "ATC-1": "J05AR - Combinaciones", "ATC-2": "J05AR06 - Emtricitabina, tenofovir disoproxilo y efavirenz"}, {"Código Nacional": 726765, "Nombre": "EFAVIRENZ/EMTRICITABINA/TENOFOVIR DISOPROXILO MACLEODS 600 MG/200 MG/245 MG COMPRIMIDOS RECUBIERTOS CON PELICULA EFG", "Principios activos": "EFAVIRENZ 600 mg; EMTRICITABINA 200 mg; TENOFOVIR DISOPROXILO FUMARATO 300 mg", "Laboratorio titular": "Macleods Pharma Espana S.L.U.", "Comercializador": "Macleods Pharma Espana S.L.U.", "Genérico": "Sí", "Afecta conducción": "Sí", "Triángulo negro": "No", "Forma farmacéutica": "COMPRIMIDO RECUBIERTO CON PELÍCULA", "Vías de administración": "VÍA ORAL", "Dosis": "600mg/200mg/245mg mg", "ATC-1": "J05AR - Combinaciones", "ATC-2": "J05AR06 - Emtricitabina, tenofovir disoproxilo y efavirenz"}, {"Código Nacional": 711611, "Nombre": "ODEFSEY 200 MG/25 MG/25 MG COMPRIMIDOS RECUBIERTOS CON PELICULA", "Principios activos": "EMTRICITABINA 200 mg; RILPIVIRINA 25 mg; TENOFOVIR ALAFENAMIDA 25 mg", "Laboratorio titular": "Gilead Sciences Ireland Unlimited Company", "Comercializador": "Gilead Sciences S.L.", "Genérico": "No", "Afecta conducción": "Sí", "Triángulo negro": "No", "Forma farmacéutica": "COMPRIMIDO RECUBIERTO CON PELÍCULA", "Vías de administración": "VÍA ORAL", "Dosis": "200 mg/25 mg/25 mg", "ATC-1": "J05AR - Combinaciones", "ATC-2": "J05AR19 - Emtricitabina, tenofovir alafenamida y rilpivirina"}, {"Código Nacional": 687185, "Nombre": "EVIPLERA 200 mg/25 mg/245 mg COMPRIMIDOS RECUBIERTOS CON PELICULA", "Principios activos": "EMTRICITABINA 200 mg; RILPIVIRINA 27,5 mg; TENOFOVIR DISOPROXILO FUMARATO 300 mg", "Laboratorio titular": "Gilead Sciences Ireland Unlimited Company", "Comercializador": "Gilead Sciences S.L.", "Genérico": "No", "Afecta conducción": "Sí", "Triángulo negro": "No", "Forma farmacéutica": "COMPRIMIDO RECUBIERTO CON PELÍCULA", "Vías de administración": "VÍA ORAL", "Dosis": "200 mg/25 mg/245 mg", "ATC-1": "J05AR - Combinaciones", "ATC-2": "J05AR08 - Emtricitabina, tenofovir disoproxilo y rilpivirina"}, {"Código Nacional": 710803, "Nombre": "DESCOVY 200 MG/ 10 MG COMPRIMIDOS RECUBIERTOS CON PELICULA", "Principios activos": "EMTRICITABINA 200 mg; TENOFOVIR ALAFENAMIDA 10 mg", "Laboratorio titular": "Gilead Sciences Ireland Unlimited Company", "Comercializador": "Gilead Sciences S.L.", "Genérico": "No", "Afecta conducción": "Sí", "Triángulo negro": "No", "Forma farmacéutica": "COMPRIMIDO RECUBIERTO CON PELÍCULA", "Vías de administración": "VÍA ORAL", "Dosis": "200 mg/10 mg", "ATC-1": "J05AR - Combinaciones", "ATC-2": "J05AR17 - Emtricitabina y tenofovir alafenamida"}, {"Código Nacional": 708963, "Nombre": "GENVOYA 150mg/150mg/200mg/10mg COMPRIMIDOS RECUBIERTOS CON PELICULA", "Principios activos": "EMTRICITABINA 200 mg; TENOFOVIR ALAFENAMIDA 10 mg; ELVITEGRAVIR 150 mg; COBICISTAT 150 mg", "Laboratorio titular": "Gilead Sciences Ireland Unlimited Company", "Comercializador": "Gilead Sciences S.L.", "Genérico": "No", "Afecta conducción": "Sí", "Triángulo negro": "No", "Forma farmacéutica": "COMPRIMIDO RECUBIERTO CON PELÍCULA", "Vías de administración": "VÍA ORAL", "Dosis": "ELVITEGRAVIR 150 mg/COBICISTAT 150 mg/EMTRICITABINA 200 mg/TENOFOVIR ALAFENAMIDA 10 mg", "ATC-1": "J05AR - Combinaciones", "ATC-2": "J05AR18 - Emtricitabina, tenofovir alafenamida, elvitegravir y cobicistat"}, {"Código Nacional": 710790, "Nombre": "DESCOVY 200 MG/ 25 MG COMPRIMIDOS RECUBIERTOS CON PELICULA", "Principios activos": "EMTRICITABINA 200 mg; TENOFOVIR ALAFENAMIDA 25 mg", "Laboratorio titular": "Gilead Sciences Ireland Unlimited Company", "Comercializador": "Gilead Sciences S.L.", "Genérico": "No", "Afecta conducción": "Sí", "Triángulo negro": "No", "Forma farmacéutica": "COMPRIMIDO RECUBIERTO CON PELÍCULA", "Vías de administración": "VÍA ORAL", "Dosis": "200 mg/ 25 mg", "ATC-1": "J05AR - Combinaciones", "ATC-2": "J05AR17 - Emtricitabina y tenofovir alafenamida"}, {"Código Nacional": 716846, "Nombre": "EMTRICITABINA/TENOFOVIR DISOPROXILO GLENMARK 200 MG/245 MG COMPRIMIDOS RECUBIERTOS CON PELICULA EFG", "Principios activos": "EMTRICITABINA 200 mg; TENOFOVIR DISOPROXILO FOSFATO 291 mg", "Laboratorio titular": "Glenmark Arzneimittel Gmbh", "Comercializador": "Glenmark Farmaceutica S.L.U", "Genérico": "Sí", "Afecta conducción": "Sí", "Triángulo negro": "No", "Forma farmacéutica": "COMPRIMIDO RECUBIERTO CON PELÍCULA", "Vías de administración": "VÍA ORAL", "Dosis": "200 mg/245 mg", "ATC-1": "J05AR - Combinaciones", "ATC-2": "J05AR03 - Tenofovir disoproxilo y emtricitabina"}, {"Código Nacional": 711276, "Nombre": "EMTRICITABINA/TENOFOVIR DISOPROXILO TEVA 200 MG/245 MG COMPRIMIDOS RECUBIERTOS CON PELICULA EFG", "Principios activos": "EMTRICITABINA 200 mg; TENOFOVIR DISOPROXILO FOSFATO 291,22 mg", "Laboratorio titular": "Teva Pharma S.L.U.", "Comercializador": "Teva Pharma S.L.U.", "Genérico": "Sí", "Afecta conducción": "Sí", "Triángulo negro": "No", "Forma farmacéutica": "COMPRIMIDO RECUBIERTO CON PELÍCULA", "Vías de administración": "VÍA ORAL", "Dosis": "200 mg/245 mg", "ATC-1": "J05AR - Combinaciones", "ATC-2": "J05AR03 - Tenofovir disoproxilo y emtricitabina"}, {"Código Nacional": 727967, "Nombre": "EMTRICITABINA/TENOFOVIR DISOPROXILO AUROVITAS 200 MG/245 MG COMPRIMIDOS RECUBIERTOS CON PELICULA EFG", "Principios activos": "EMTRICITABINA 200 mg; TENOFOVIR DISOPROXILO FUMARATO 300 mg", "Laboratorio titular": "Aurovitas Spain, S.A.U.", "Comercializador": "Aurovitas Spain, S.A.U.", "Genérico": "Sí", "Afecta conducción": "Sí", "Triángulo negro": "No", "Forma farmacéutica": "COMPRIMIDO RECUBIERTO CON PELÍCULA", "Vías de administración": "VÍA ORAL", "Dosis": "200 mg/245 mg", "ATC-1": "J05AR - Combinaciones", "ATC-2": "J05AR03 - Tenofovir disoproxilo y emtricitabina"}, {"Código Nacional": 729950, "Nombre": "EMTRICITABINA/TENOFOVIR DISOPROXILO MACLEODS 200 MG/245 MG COMPRIMIDOS RECUBIERTOS CON PELICULA EFG", "Principios activos": "EMTRICITABINA 200 mg; TENOFOVIR DISOPROXILO FUMARATO 300 mg", "Laboratorio titular": "Macleods Pharma Espana S.L.U.", "Comercializador": "Macleods Pharma Espana S.L.U.", "Genérico": "Sí", "Afecta conducción": "Sí", "Triángulo negro": "No", "Forma farmacéutica": "COMPRIMIDO RECUBIERTO CON PELÍCULA", "Vías de administración": "VÍA ORAL", "Dosis": "200 mg/245 mg", "ATC-1": "J05AR - Combinaciones", "ATC-2": "J05AR03 - Tenofovir disoproxilo y emtricitabina"}, {"Código Nacional": 715025, "Nombre": "EMTRICITABINA/TENOFOVIR DISOPROXIL MYLAN 200 MG/245 MG COMPRIMIDOS RECUBIERTOS CON PELICULA EFG", "Principios activos": "EMTRICITABINA 200 mg; TENOFOVIR DISOPROXILO MALEATO 300 mg", "Laboratorio titular": "Mylan Pharmaceuticals Limited", "Comercializador": "Viatris Pharmaceuticals S.L.U.", "Genérico": "Sí", "Afecta conducción": "Sí", "Triángulo negro": "No", "Forma farmacéutica": "COMPRIMIDO RECUBIERTO CON PELÍCULA", "Vías de administración": "VÍA ORAL", "Dosis": "200/245 mg", "ATC-1": "J05AR - Combinaciones", "ATC-2": "J05AR03 - Tenofovir disoproxilo y emtricitabina"}, {"Código Nacional": 661587, "Nombre": "COMBIVIR 150 MG/300 MG COMPRIMIDOS RECUBIERTOS CON PELICULA", "Principios activos": "LAMIVUDINA 150 mg; ZIDOVUDINA 300 mg", "Laboratorio titular": "Viiv Healthcare B.V.", "Comercializador": "Laboratorios Viiv Healthcare S.L.", "Genérico": "No", "Afecta conducción": "No", "Triángulo negro": "No", "Forma farmacéutica": "COMPRIMIDO RECUBIERTO CON PELÍCULA", "Vías de administración": "VÍA ORAL", "Dosis": "Desconocida", "ATC-1": "J05AR - Combinaciones", "ATC-2": "J05AR01 - Zidovudina y lamivudina"}, {"Código Nacional": 660752, "Nombre": "KALETRA 100 mg/25 mg COMPRIMIDOS RECUBIERTOS CON PELICULA", "Principios activos": "LOPINAVIR 100 mg; RITONAVIR 25 mg", "Laboratorio titular": "Abbvie Deutschland Gmbh & Co. Kg", "Comercializador": "Abbvie Spain, S.L.U.", "Genérico": "No", "Afecta conducción": "No", "Triángulo negro": "No", "Forma farmacéutica": "COMPRIMIDO RECUBIERTO CON PELÍCULA", "Vías de administración": "VÍA ORAL", "Dosis": "100 mg / 25 mg", "ATC-1": "J05AR - Combinaciones", "ATC-2": "J05AR10 - Lopinavir y ritonavir"}, {"Código Nacional": 730481, "Nombre": "KALETRA 200 mg/50 mg COMPRIMIDOS RECUBIERTOS CON PELICULA", "Principios activos": "LOPINAVIR 200 mg; RITONAVIR 50 mg", "Laboratorio titular": "Abbvie Deutschland Gmbh & Co. Kg", "Comercializador": "Abbvie Spain, S.L.U.", "Genérico": "No", "Afecta conducción": "No", "Triángulo negro": "No", "Forma farmacéutica": "COMPRIMIDO RECUBIERTO CON PELÍCULA", "Vías de administración": "VÍA ORAL", "Dosis": "200 mg/ 50 mg", "ATC-1": "J05AR - Combinaciones", "ATC-2": "J05AR10 - Lopinavir y ritonavir"}, {"Código Nacional": 906990, "Nombre": "KALETRA (80 MG + 20 MG)/ML SOLUCION ORAL", "Principios activos": "LOPINAVIR 400 mg; RITONAVIR 100 mg", "Laboratorio titular": "Abbvie Deutschland Gmbh & Co. Kg", "Comercializador": "Abbvie Spain, S.L.U.", "Genérico": "No", "Afecta conducción": "No", "Triángulo negro": "No", "Forma farmacéutica": "SOLUCIÓN ORAL", "Vías de administración": "VÍA ORAL", "Dosis": "400 mg / 100 mg", "ATC-1": "J05AR - Combinaciones", "ATC-2": "J05AR10 - Lopinavir y ritonavir"}, {"Código Nacional": 650921, "Nombre": "TRUVADA 200 mg/245 mg COMPRIMIDOS RECUBIERTOS CON PELICULA", "Principios activos": "TENOFOVIR 245 mg; EMTRICITABINA 200 mg", "Laboratorio titular": "Gilead Sciences Ireland Unlimited Company", "Comercializador": "Gilead Sciences S.L.", "Genérico": "No", "Afecta conducción": "Sí", "Triángulo negro": "No", "Forma farmacéutica": "COMPRIMIDO RECUBIERTO CON PELÍCULA", "Vías de administración": "VÍA ORAL", "Dosis": "200/245 mg/mg/mg", "ATC-1": "J05AR - Combinaciones", "ATC-2": "J05AR03 - Tenofovir disoproxilo y emtricitabina"}, {"Código Nacional": 730359, "Nombre": "RUKOBIA 600 MG COMPRIMIDOS DE LIBERACION PROLONGADA", "Principios activos": "FOSTEMSAVIR TROMETAMOL 724,56 mg", "Laboratorio titular": "Viiv Healthcare B.V.", "Comercializador": "Laboratorios Viiv Healthcare S.L.", "Genérico": "No", "Afecta conducción": "Sí", "Triángulo negro": "Sí", "Forma farmacéutica": "COMPRIMIDO DE LIBERACIÓN PROLONGADA", "Vías de administración": "VÍA ORAL", "Dosis": "600 mg", "ATC-1": "J05AX - Antivirales para uso sistémico; otros antivirales", "ATC-2": "J05AX29 - Fostemsavir"}, {"Código Nacional": 758207, "Nombre": "SUNLENCA 300 MG COMPRIMIDOS RECUBIERTOS CON PELICULA", "Principios activos": "LENACAPAVIR SODIO 306,8 mg", "Laboratorio titular": "Gilead Sciences Ireland Unlimited Company", "Comercializador": "Gilead Sciences S.L.", "Genérico": "No", "Afecta conducción": "No", "Triángulo negro": "Sí", "Forma farmacéutica": "COMPRIMIDO RECUBIERTO CON PELÍCULA", "Vías de administración": "VÍA ORAL", "Dosis": "300 mg", "ATC-1": "J05AX - Antivirales para uso sistémico; otros antivirales", "ATC-2": "J05AX31 - Lenacapavir"}, {"Código Nacional": 758208, "Nombre": "SUNLENCA 464 MG SOLUCION INYECTABLE", "Principios activos": "LENACAPAVIR SODIO 315,4 mg/ml", "Laboratorio titular": "Gilead Sciences Ireland Unlimited Company", "Comercializador": "Gilead Sciences S.L.", "Genérico": "No", "Afecta conducción": "No", "Triángulo negro": "Sí", "Forma farmacéutica": "SOLUCIÓN INYECTABLE", "Vías de administración": "VÍA SUBCUTÁNEA", "Dosis": "464 MG", "ATC-1": "J05AX - Antivirales para uso sistémico; otros antivirales", "ATC-2": "J05AX31 - Lenacapavir"}, {"Código Nacional": 659899, "Nombre": "CELSENTRI 150 MG COMPRIMIDOS RECUBIERTOS CON PELICULA", "Principios activos": "MARAVIROC 150 mg", "Laboratorio titular": "Viiv Healthcare B.V.", "Comercializador": "Laboratorios Viiv Healthcare S.L.", "Genérico": "No", "Afecta conducción": "No", "Triángulo negro": "No", "Forma farmacéutica": "COMPRIMIDO RECUBIERTO CON PELÍCULA", "Vías de administración": "VÍA ORAL", "Dosis": "150 mg", "ATC-1": "J05AX - Antivirales para uso sistémico; otros antivirales", "ATC-2": "J05AX09 - Maraviroc"}, {"Código Nacional": 764758, "Nombre": "MARAVIROC TARBIS 150 MG COMPRIMIDOS RECUBIERTOS CON PELICULA EFG", "Principios activos": "MARAVIROC 150 mg", "Laboratorio titular": "Tarbis Farma S.L.", "Comercializador": "Tarbis Farma S.L.", "Genérico": "Sí", "Afecta conducción": "No", "Triángulo negro": "No", "Forma farmacéutica": "COMPRIMIDO RECUBIERTO CON PELÍCULA", "Vías de administración": "VÍA ORAL", "Dosis": "150 mg", "ATC-1": "J05AX - Antivirales para uso sistémico; otros antivirales", "ATC-2": "J05AX09 - Maraviroc"}, {"Código Nacional": 659900, "Nombre": "CELSENTRI 300 MG COMPRIMIDOS RECUBIERTOS CON PELICULA", "Principios activos": "MARAVIROC 300 mg", "Laboratorio titular": "Viiv Healthcare B.V.", "Comercializador": "Laboratorios Viiv Healthcare S.L.", "Genérico": "No", "Afecta conducción": "No", "Triángulo negro": "No", "Forma farmacéutica": "COMPRIMIDO RECUBIERTO CON PELÍCULA", "Vías de administración": "VÍA ORAL", "Dosis": "300 mg", "ATC-1": "J05AX - Antivirales para uso sistémico; otros antivirales", "ATC-2": "J05AX09 - Maraviroc"}, {"Código Nacional": 764760, "Nombre": "MARAVIROC TARBIS 300 MG COMPRIMIDOS RECUBIERTOS CON PELICULA EFG", "Principios activos": "MARAVIROC 300 mg", "Laboratorio titular": "Tarbis Farma S.L.", "Comercializador": "Tarbis Farma S.L.", "Genérico": "Sí", "Afecta conducción": "No", "Triángulo negro": "No", "Forma farmacéutica": "COMPRIMIDO RECUBIERTO CON PELÍCULA", "Vías de administración": "VÍA ORAL", "Dosis": "300 mg", "ATC-1": "J05AX - Antivirales para uso sistémico; otros antivirales", "ATC-2": "J05AX09 - Maraviroc"}];
+
+let filtered = [...DATA];
+let currentSort = { col: null, asc: true };
+
+function init() {
+  populateFilterOptions();
+  applyFilters();
+  document.getElementById('f-nombre').addEventListener('input', applyFilters);
+  document.querySelectorAll('.filters-grid select').forEach(s => {
+    s.addEventListener('change', applyFilters);
+  });
+}
+
+function populateFilterOptions() {
+  fillSelect('f-atc1', unique('ATC-1'));
+  fillSelect('f-atc2', unique('ATC-2'));
+  fillSelect('f-lab', unique('Laboratorio titular'));
+  fillSelect('f-forma', unique('Forma farmacéutica'));
+  fillSelect('f-via', unique('Vías de administración'));
+}
+
+function unique(key) {
+  return [...new Set(DATA.map(d => d[key]))].sort();
+}
+
+function fillSelect(id, options) {
+  const sel = document.getElementById(id);
+  const firstOpt = sel.options[0].textContent;
+  sel.innerHTML = '<option value="">' + firstOpt + '</option>';
+  options.forEach(o => {
+    const opt = document.createElement('option');
+    opt.value = o;
+    opt.textContent = o;
+    sel.appendChild(opt);
+  });
+}
+
+function applyFilters() {
+  const nombre = document.getElementById('f-nombre').value.toLowerCase().trim();
+  const atc1 = document.getElementById('f-atc1').value;
+  const atc2 = document.getElementById('f-atc2').value;
+  const lab = document.getElementById('f-lab').value;
+  const forma = document.getElementById('f-forma').value;
+  const via = document.getElementById('f-via').value;
+  const generico = document.getElementById('f-generico').value;
+  const conduccion = document.getElementById('f-conduccion').value;
+  const triangulo = document.getElementById('f-triangulo').value;
+
+  filtered = DATA.filter(d => {
+    if (nombre && !d['Nombre'].toLowerCase().includes(nombre) &&
+        !d['Principios activos'].toLowerCase().includes(nombre) &&
+        !String(d['Código Nacional']).includes(nombre)) return false;
+    if (atc1 && d['ATC-1'] !== atc1) return false;
+    if (atc2 && d['ATC-2'] !== atc2) return false;
+    if (lab && d['Laboratorio titular'] !== lab) return false;
+    if (forma && d['Forma farmacéutica'] !== forma) return false;
+    if (via && d['Vías de administración'] !== via) return false;
+    if (generico && d['Genérico'] !== generico) return false;
+    if (conduccion && d['Afecta conducción'] !== conduccion) return false;
+    if (triangulo && d['Triángulo negro'] !== triangulo) return false;
+    return true;
+  });
+
+  if (currentSort.col) {
+    sortData(currentSort.col, currentSort.asc);
+  }
+
+  renderTable();
+}
+
+function clearFilters() {
+  document.getElementById('f-nombre').value = '';
+  document.querySelectorAll('.filters-grid select').forEach(s => s.value = '');
+  currentSort = { col: null, asc: true };
+  document.querySelectorAll('thead th').forEach(th => th.classList.remove('sorted'));
+  applyFilters();
+}
+
+function sortBy(th) {
+  const col = th.getAttribute('data-col');
+  if (currentSort.col === col) {
+    currentSort.asc = !currentSort.asc;
+  } else {
+    currentSort.col = col;
+    currentSort.asc = true;
+  }
+  document.querySelectorAll('thead th').forEach(t => t.classList.remove('sorted'));
+  th.classList.add('sorted');
+  th.querySelector('.sort-arrow').textContent = currentSort.asc ? '\u25B2' : '\u25BC';
+  sortData(col, currentSort.asc);
+  renderTable();
+}
+
+function sortData(col, asc) {
+  filtered.sort((a, b) => {
+    let va = a[col], vb = b[col];
+    if (typeof va === 'number') return asc ? va - vb : vb - va;
+    va = String(va).toLowerCase();
+    vb = String(vb).toLowerCase();
+    return asc ? va.localeCompare(vb) : vb.localeCompare(va);
+  });
+}
+
+function renderTable() {
+  const tbody = document.getElementById('table-body');
+  const noResults = document.getElementById('no-results');
+  const count = document.getElementById('results-count');
+
+  count.innerHTML = 'Mostrando <strong>' + filtered.length + '</strong> de <strong>' + DATA.length + '</strong> medicamentos';
+
+  if (filtered.length === 0) {
+    tbody.innerHTML = '';
+    noResults.style.display = 'block';
+    return;
+  }
+  noResults.style.display = 'none';
+
+  tbody.innerHTML = filtered.map((d, i) => {
+    const genBadge = d['Genérico'] === 'Sí'
+      ? '<span class="badge badge-generico">EFG</span>'
+      : '<span class="badge badge-marca">Marca</span>';
+    const condBadge = d['Afecta conducción'] === 'Sí'
+      ? '<span class="badge badge-si">Sí</span>'
+      : '<span class="badge badge-no">No</span>';
+    const triBadge = d['Triángulo negro'] === 'Sí'
+      ? '<span class="badge badge-si">Sí</span>'
+      : '<span class="badge badge-no">No</span>';
+    const atc2Short = d['ATC-2'].replace(/^J05\w+\s-\s/, '');
+    return '<tr onclick="openDetail(' + i + ')">' +
+      '<td>' + d['Código Nacional'] + '</td>' +
+      '<td class="nombre-col">' + d['Nombre'] + '</td>' +
+      '<td>' + atc2Short + '</td>' +
+      '<td>' + d['Forma farmacéutica'] + '</td>' +
+      '<td>' + d['Dosis'] + '</td>' +
+      '<td>' + genBadge + '</td>' +
+      '<td>' + condBadge + '</td>' +
+      '<td>' + triBadge + '</td>' +
+      '</tr>';
+  }).join('');
+}
+
+function openDetail(idx) {
+  const d = filtered[idx];
+  document.getElementById('modal-title').textContent = d['Nombre'];
+
+  const cn = d['Código Nacional'];
+  const cimaUrl = 'https://cima.aemps.es/cima/publico/home.html';
+  const bifimedUrl = 'https://www.sanidad.gob.es/profesionales/medicamentos.do';
+
+  let html = '<div class="detail-grid">';
+  html += detailItem('Código Nacional', cn);
+  html += detailItem('Dosis', d['Dosis']);
+  html += detailItem('Principios activos', d['Principios activos'], true);
+  html += detailItem('Grupo terapéutico (ATC-1)', d['ATC-1'], true);
+  html += detailItem('Principio activo (ATC-2)', d['ATC-2'], true);
+  html += detailItem('Forma farmacéutica', d['Forma farmacéutica']);
+  html += detailItem('Vía de administración', d['Vías de administración']);
+  html += detailItem('Laboratorio titular', d['Laboratorio titular'], true);
+  html += detailItem('Comercializador', d['Comercializador'], true);
+
+  const genVal = d['Genérico'] === 'Sí'
+    ? '<span class="badge badge-generico">Sí — Equivalente farmacéutico genérico (EFG)</span>'
+    : '<span class="badge badge-marca">No — Medicamento de marca</span>';
+  html += detailItemRaw('Genérico', genVal);
+
+  const condVal = d['Afecta conducción'] === 'Sí'
+    ? '<span class="badge badge-si">Sí — Puede afectar la capacidad de conducción</span>'
+    : '<span class="badge badge-no">No</span>';
+  html += detailItemRaw('Afecta conducción', condVal);
+
+  const triVal = d['Triángulo negro'] === 'Sí'
+    ? '<span class="badge badge-si">Sí — Sujeto a seguimiento adicional</span>'
+    : '<span class="badge badge-no">No</span>';
+  html += detailItemRaw('Triángulo negro', triVal);
+
+  html += '</div>';
+
+  html += '<div class="modal-links">';
+  html += '<a class="link-cima" href="' + cimaUrl + '" target="_blank" rel="noopener">&#127973; Ficha técnica en CIMA</a>';
+  html += '<a class="link-bifimed" href="' + bifimedUrl + '" target="_blank" rel="noopener">&#128176; Financiación en BIFIMED</a>';
+  html += '</div>';
+
+  html += '<div class="modal-download-row">';
+  html += '<button class="btn btn-download" onclick="downloadMedCSV(' + idx + ')">&#8681; Descargar ficha (CSV)</button>';
+  html += '</div>';
+
+  document.getElementById('modal-body').innerHTML = html;
+  document.getElementById('modal-overlay').classList.add('active');
+  document.body.style.overflow = 'hidden';
+}
+
+function detailItem(label, value, fullWidth) {
+  const cls = fullWidth ? ' full-width' : '';
+  return '<div class="detail-item' + cls + '"><div class="detail-label">' + label + '</div><div class="detail-value">' + escHtml(String(value)) + '</div></div>';
+}
+
+function detailItemRaw(label, valueHtml) {
+  return '<div class="detail-item"><div class="detail-label">' + label + '</div><div class="detail-value">' + valueHtml + '</div></div>';
+}
+
+function escHtml(s) {
+  const d = document.createElement('div');
+  d.textContent = s;
+  return d.innerHTML;
+}
+
+function closeModal(e) {
+  if (e && e.target !== document.getElementById('modal-overlay') && e.type === 'click') return;
+  document.getElementById('modal-overlay').classList.remove('active');
+  document.body.style.overflow = '';
+}
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') closeModal();
+});
+
+function downloadCSV() {
+  if (filtered.length === 0) return;
+  const cols = ['Código Nacional','Nombre','Principios activos','Laboratorio titular','Comercializador','Genérico','Afecta conducción','Triángulo negro','Forma farmacéutica','Vías de administración','Dosis','ATC-1','ATC-2'];
+  let csv = cols.join(';') + '\n';
+  filtered.forEach(d => {
+    csv += cols.map(c => '"' + String(d[c]).replace(/"/g, '""') + '"').join(';') + '\n';
+  });
+  downloadFile(csv, 'ARV_listado_filtrado.csv', 'text/csv;charset=utf-8;');
+}
+
+function downloadMedCSV(idx) {
+  const d = filtered[idx];
+  const cols = ['Código Nacional','Nombre','Principios activos','Laboratorio titular','Comercializador','Genérico','Afecta conducción','Triángulo negro','Forma farmacéutica','Vías de administración','Dosis','ATC-1','ATC-2'];
+  let csv = cols.join(';') + '\n';
+  csv += cols.map(c => '"' + String(d[c]).replace(/"/g, '""') + '"').join(';') + '\n';
+  const safeName = d['Nombre'].replace(/[^a-zA-Z0-9]/g, '_').substring(0, 50);
+  downloadFile(csv, 'ARV_' + safeName + '.csv', 'text/csv;charset=utf-8;');
+}
+
+function downloadFile(content, filename, mimeType) {
+  const BOM = '\uFEFF';
+  const blob = new Blob([BOM + content], { type: mimeType });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+init();
+</script>
+</body>
+</html>
